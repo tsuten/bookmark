@@ -1,0 +1,12 @@
+{
+    "files.exclude": {
+        "**/flutter/ephemeral": true,
+        "**/Flutter/ephemeral": true,
+        "**/.symlinks": true,
+        "**/.plugin_symlinks": true,
+        "bookmark/node_modules": true,
+        ".vscode": true,
+        "app/node_modules": true,
+        "app/.meteor": true
+    }
+}
