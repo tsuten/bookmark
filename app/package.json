@@ -15,8 +15,12 @@
     "meteor-node-stubs": "^1.2.12",
     "postcss": "^8.5.10",
     "postcss-load-config": "^6.0.1",
+    "radix-ui": "^1.4.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-resizable-panels": "^4.10.0",
+    "react-router": "^6.30.3",
+    "react-router-dom": "^6.30.3",
     "tailwindcss": "^4.2.2"
   },
   "meteor": {

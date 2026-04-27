@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { Plus } from 'lucide-react';
+import { InputWithIcon } from './molecules/InputWithIcon';
+import { Search } from 'lucide-react';
 
 export const Header = () => {
     const [title, setTitle] = useState('');
@@ -20,12 +23,14 @@ export const Header = () => {
 
   return (
     <header>
-      <h1>Header</h1>
-
+      <form>
+        <InputWithIcon icon={<Search className="w-4 h-4" />} placeholder="search"/>
+      </form>
       <div>
-        <input type="text" placeholder="add title" value={title} onChange={handleTitleChange} />
-        <input type="text" placeholder="add url" value={url} onChange={handleUrlChange} />
-        <button onClick={addBookmarkItem}>Add Bookmark</button>
+        <input type="text" placeholder="Enter URL" value={url} onChange={handleUrlChange} required />
+        <button onClick={addBookmarkItem} className="bg-blue-500 text-white p-2">
+          <Plus className="w-4 h-4" />
+        </button>
       </div>
     </header>
   );
