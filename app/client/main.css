@@ -60,13 +60,40 @@ input:focus {
 @layer base {
   /* atoms */
   input {
-    @apply bg-gray-100 p-1 text-sm;
+    @apply bg-gray-100 p-1 text-sm min-w-0 max-w-full;
   }
   input:focus {
     @apply outline-1 outline-gray-500;
   }
   hr {
     @apply border-gray-300;
+  }
+
+  /* Radix DropdownMenu primitives (Bookmarks sort; app-wide radix menu visuals) */
+  button[type='button'][aria-haspopup='menu'] {
+    @apply inline-flex items-center gap-2 bg-gray-100 px-2 py-1 text-sm;
+  }
+
+  button[type='button'][aria-haspopup='menu'][data-state='open'] {
+    @apply outline-1 outline-gray-500;
+  }
+
+  button[type='button'][aria-haspopup='menu'] svg {
+    @apply size-4 opacity-70;
+  }
+
+  [data-radix-menu-content][role='menu'] {
+    @apply min-w-32 rounded border border-gray-300 bg-gray-50 p-1 shadow-md z-50;
+  }
+
+  [role='menu'] [role='menuitem'],
+  [role='menu'] [role='menuitemradio'] {
+    @apply rounded px-2 py-1.5 text-sm outline-none cursor-default select-none;
+  }
+
+  [role='menu'] [role='menuitem'][data-highlighted],
+  [role='menu'] [role='menuitemradio'][data-highlighted] {
+    @apply bg-gray-200;
   }
 
   /* molecules */
