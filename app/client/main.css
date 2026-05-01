@@ -60,7 +60,7 @@ input:focus {
 @layer base {
   /* atoms */
   input {
-    @apply bg-gray-100 p-1 text-sm min-w-0 max-w-full;
+    @apply bg-gray-100 p-1 text-sm min-w-0 max-w-full rounded-sm;
   }
   input:focus {
     @apply outline-1 outline-gray-500;
@@ -68,10 +68,16 @@ input:focus {
   hr {
     @apply border-gray-300;
   }
+  button {
+    @apply rounded-sm cursor-pointer;
+  }
+  button:focus {
+    @apply outline-none;
+  }
 
   /* Radix DropdownMenu primitives (Bookmarks sort; app-wide radix menu visuals) */
   button[type='button'][aria-haspopup='menu'] {
-    @apply inline-flex items-center gap-2 bg-gray-100 px-2 py-1 text-sm;
+    @apply inline-flex items-center gap-2 bg-gray-100 px-2 py-1 text-sm rounded-sm;
   }
 
   button[type='button'][aria-haspopup='menu'][data-state='open'] {
@@ -86,9 +92,12 @@ input:focus {
     @apply min-w-32 rounded border border-gray-300 bg-gray-50 p-1 shadow-md z-50;
   }
 
-  [role='menu'] [role='menuitem'],
-  [role='menu'] [role='menuitemradio'] {
+  [role='menu'] [role='menuitem'] {
     @apply rounded px-2 py-1.5 text-sm outline-none cursor-default select-none;
+  }
+
+  [role='menu'] [role='menuitemradio'] {
+    @apply rounded px-2 py-1.5 text-sm outline-none cursor-default select-none inline-flex items-center gap-2;
   }
 
   [role='menu'] [role='menuitem'][data-highlighted],

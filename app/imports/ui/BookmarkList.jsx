@@ -2,15 +2,22 @@ import React, { useState } from 'react';
 import { useFind, useSubscribe } from 'meteor/react-meteor-data';
 import { BookmarkItemsCollection } from '../api/bookmarkItems';
 import { BookmarkItem } from './BookmarkItem.jsx';
-import { Bookmark, ChevronDown } from 'lucide-react';
+import {
+  ArrowDownAZ,
+  ArrowUpAZ,
+  Bookmark,
+  ChevronDown,
+  ClockArrowDown,
+  ClockArrowUp,
+} from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import { DropdownMenu } from 'radix-ui';
 
 const SORT_OPTIONS = [
-  { value: 'newest', label: 'Newest' },
-  { value: 'oldest', label: 'Oldest' },
-  { value: 'az', label: 'A-Z' },
-  { value: 'za', label: 'Z-A' },
+  { value: 'newest', label: 'Newest', Icon: ClockArrowDown },
+  { value: 'oldest', label: 'Oldest', Icon: ClockArrowUp },
+  { value: 'az', label: 'A-Z', Icon: ArrowUpAZ },
+  { value: 'za', label: 'Z-A', Icon: ArrowDownAZ },
 ];
 
 function sortOptionForMode(mode) {
@@ -41,8 +48,9 @@ export const BookmarkList = () => {
     [tag, sortBy]
   );
 
-  const sortLabel =
-    SORT_OPTIONS.find((o) => o.value === sortBy)?.label ?? 'Newest';
+  const sortOption =
+    SORT_OPTIONS.find((o) => o.value === sortBy) ?? SORT_OPTIONS[0];
+  const { label: sortLabel, Icon: SortIcon } = sortOption;
 
   if (isLoading()) {
     return <div>Loading...</div>;
@@ -58,14 +66,16 @@ export const BookmarkList = () => {
         <div className="flex flex-row gap-2 items-center">
           <DropdownMenu.Root>
             <DropdownMenu.Trigger>
+              <SortIcon aria-hidden />
               {sortLabel}
               <ChevronDown aria-hidden />
             </DropdownMenu.Trigger>
             <DropdownMenu.Portal>
               <DropdownMenu.Content sideOffset={4}>
                 <DropdownMenu.RadioGroup value={sortBy} onValueChange={setSortBy}>
-                  {SORT_OPTIONS.map(({ value, label }) => (
+                  {SORT_OPTIONS.map(({ value, label, Icon }) => (
                     <DropdownMenu.RadioItem key={value} value={value}>
+                      <Icon aria-hidden className="w-4 h-4" />
                       {label}
                     </DropdownMenu.RadioItem>
                   ))}

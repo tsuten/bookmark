@@ -4,7 +4,7 @@ export const InputWithIcon = ({ icon, placeholder, value, onChange }) => {
   return (
     <div className="flex w-full min-w-0 flex-row gap-2 items-center">
       <div className="w-full min-w-0">
-    <div className="flex w-full min-w-0 items-center bg-gray-100 pl-3 has-[input:focus-within]:outline-1 has-[input:focus-within]:-outline-offset-1 has-[input:focus-within]:outline-gray-500">
+    <div className="flex w-full min-w-0 items-center bg-gray-100 pl-3 has-[input:focus-within]:outline-1 has-[input:focus-within]:-outline-offset-1 has-[input:focus-within]:outline-gray-500 rounded-sm">
       <span className="inline-flex shrink-0 items-center justify-center [&_svg]:size-4 [&_svg]:shrink-0">
         {icon}
       </span>

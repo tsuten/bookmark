@@ -70,6 +70,7 @@ export const App = () => (
     <Route path="/" element={<AppLayout />}>
       <Route index element={<BookmarkList />} />
       <Route path=":tag" element={<BookmarkList />} />
+      <Route path="uncategorized" element={<BookmarkList />} />
     </Route>
   </Routes>
 );
