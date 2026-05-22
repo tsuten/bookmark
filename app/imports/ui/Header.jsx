@@ -1,37 +1,66 @@
 import React, { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
 import { InputWithIcon } from './molecules/InputWithIcon';
-import { Search } from 'lucide-react';
+import {
+  bookmarkUrlErrorMessage,
+  validateHttpUrlString,
+} from '../api/bookmarkItems';
 
-export const Header = () => {
-    const [title, setTitle] = useState('');
-    const [url, setUrl] = useState('');
+const insertBookmarkItem = () => {
+  const [url, setUrl] = useState('');
+  const [urlError, setUrlError] = useState('');
 
-    const handleTitleChange = (event) => {
-        setTitle(event.target.value);
+  const handleUrlChange = (event) => {
+    setUrl(event.target.value);
+    if (urlError) setUrlError('');
+  };
+
+  const addBookmarkItem = () => {
+    const result = validateHttpUrlString(url);
+    if (!result.valid) {
+      setUrlError(bookmarkUrlErrorMessage(result.errorCode));
+      return;
     }
-
-    const handleUrlChange = (event) => {
-        setUrl(event.target.value);
-    }
-
-    const addBookmarkItem = () => {
-        Meteor.call('addBookmarkItem', title, url);
-        setTitle('');
-        setUrl('');
-    }
+    Meteor.call('addBookmarkItem', { title: url.trimStart(), url: url.trim() });
+    setUrl('');
+    setUrlError('');
+  };
 
   return (
-    <header>
-      <form>
-        <InputWithIcon icon={<Search className="w-4 h-4" />} placeholder="search"/>
-      </form>
-      <div>
-        <input type="text" placeholder="Enter URL" value={url} onChange={handleUrlChange} required />
-        <button onClick={addBookmarkItem} className="bg-blue-500 text-white p-2">
+    <div className="flex flex-col gap-1">
+      <div className="flex flex-row items-center">
+        <input
+          type="text"
+          placeholder="Add a new bookmark"
+          value={url}
+          onChange={handleUrlChange}
+          aria-invalid={urlError ? 'true' : 'false'}
+          className={
+            urlError
+              ? 'w-full min-w-0 flex-1 rounded border rounded-r-none border-red-500 px-2 py-1 outline-none focus:ring-2 focus:ring-red-400'
+              : 'w-full min-w-0 flex-1 rounded border rounded-r-none border-gray-300 px-2 py-1 outline-none focus:ring-2 focus:ring-blue-400'
+          }
+        />
+        <button type="button" onClick={addBookmarkItem} className="bg-blue-500 p-2 text-white rounded-l-none">
           <Plus className="w-4 h-4" />
         </button>
       </div>
+      {/* {urlError ? (
+        <p className="text-sm text-red-600" role="alert">
+          {urlError}
+        </p>
+      ) : null} */}
+    </div>
+  )
+}
+
+export const Header = () => {
+  return (
+    <header>
+      <form>
+        <InputWithIcon icon={<Search className="w-4 h-4" />} placeholder="search" />
+      </form>
+      {insertBookmarkItem()}
     </header>
   );
 };

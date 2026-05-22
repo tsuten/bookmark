@@ -1,20 +1,9 @@
 import { Meteor } from 'meteor/meteor';
-import { BookmarkItemsCollection } from '/imports/api/bookmarkItems';
+import {
+  BookmarkItemsCollection,
+  insertBookmarkItem,
+} from '/imports/api/bookmarkItems';
 import { BookmarkCollectionsCollection } from '/imports/api/bookmarkCollections';
-
-async function insertBookmarkItem({ title, url, tags }) {
-  await BookmarkItemsCollection.insertAsync({ title, url, tags, createdAt: new Date() });
-}
-
-async function insertBookmarkCollection({ name, bookmarkItems }) {
-  await BookmarkCollectionsCollection.insertAsync({ name, bookmarkItems, createdAt: new Date() });
-}
-
-Meteor.methods({
-  addBookmarkItem(title, url, tags) {
-    insertBookmarkItem({ title, url, tags });
-  }
-});
 
 Meteor.startup(async () => {
 
@@ -23,23 +12,26 @@ Meteor.startup(async () => {
     await insertBookmarkItem({
       title: 'Google',
       url: 'https://www.google.com',
-      tags: ['search', 'engine']
+      note: 'The search engine',
+      tags: ['search', 'engine'],
     });
     await insertBookmarkItem({
       title: 'Microsoft',
       url: 'https://www.microsoft.com',
-      tags: ['software', 'company']
+      note: 'The software company',
+      tags: ['software', 'company'],
     });
     await insertBookmarkItem({
       title: 'Apple',
       url: 'https://www.apple.com',
-      tags: ['technology', 'company']
+      note: 'The technology company',
+      tags: ['technology', 'company'],
     });
-    }
+  }
 
   // If the BookmarkCollections collection is empty, add some data.
   if (await BookmarkCollectionsCollection.find().countAsync() === 0) {
-    await insertBookmarkCollection({
+    await BookmarkCollectionsCollection.insertAsync({
       name: 'My Collections',
     });
   }

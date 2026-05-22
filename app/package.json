@@ -21,6 +21,7 @@
     "react-resizable-panels": "^4.10.0",
     "react-router": "^6.30.3",
     "react-router-dom": "^6.30.3",
+    "simpl-schema": "^3.4.7",
     "tailwindcss": "^4.2.2"
   },
   "meteor": {
