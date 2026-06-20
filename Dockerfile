@@ -7,7 +7,9 @@ WORKDIR /app
 
 COPY app/ .
 
-RUN meteor build --directory /build
+ENV METEOR_ALLOW_SUPERUSER=true
+
+RUN meteor build --directory /build --allow-superuser
 
 WORKDIR /build/bundle/programs/server
 RUN npm install
