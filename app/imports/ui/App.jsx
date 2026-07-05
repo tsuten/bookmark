@@ -6,7 +6,6 @@ import { Group, Panel } from 'react-resizable-panels';
 import { Sidebar } from './Sidebar.jsx';
 import { Header } from './Header.jsx';
 import { BookmarkList } from './BookmarkList.jsx';
-import { Development } from './Development.jsx';
 import { LoginPage } from './auth/LoginPage.jsx';
 import { RegisterPage } from './auth/RegisterPage.jsx';
 
