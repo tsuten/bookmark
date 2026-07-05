@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { Meteor } from 'meteor/meteor';
 import { Plus, Search } from 'lucide-react';
 import { InputWithIcon } from './molecules/InputWithIcon';
+import { UserMenu } from './UserMenu.jsx';
 import {
   bookmarkUrlErrorMessage,
   validateHttpUrlString,
@@ -35,11 +37,11 @@ const insertBookmarkItem = () => {
           value={url}
           onChange={handleUrlChange}
           aria-invalid={urlError ? 'true' : 'false'}
-          className={
-            urlError
-              ? 'w-full min-w-0 flex-1 rounded border rounded-r-none border-red-500 px-2 py-1 outline-none focus:ring-2 focus:ring-red-400'
-              : 'w-full min-w-0 flex-1 rounded border rounded-r-none border-gray-300 px-2 py-1 outline-none focus:ring-2 focus:ring-blue-400'
-          }
+          // className={
+          //   urlError
+          //     ? 'w-full min-w-0 flex-1 rounded border rounded-r-none border-red-500 px-2 py-1 outline-none focus:ring-2 focus:ring-red-400'
+          //     : 'w-full min-w-0 flex-1 rounded border rounded-r-none border-gray-300 px-2 py-1 outline-none focus:ring-2 focus:ring-blue-400'
+          // }
         />
         <button type="button" onClick={addBookmarkItem} className="bg-blue-500 p-2 text-white rounded-l-none">
           <Plus className="w-4 h-4" />
@@ -60,7 +62,10 @@ export const Header = () => {
       <form>
         <InputWithIcon icon={<Search className="w-4 h-4" />} placeholder="search" />
       </form>
-      {insertBookmarkItem()}
+      <div className="flex flex-row items-center gap-2">
+        {insertBookmarkItem()}
+        <UserMenu />
+      </div>
     </header>
   );
 };

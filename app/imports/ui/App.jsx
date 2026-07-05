@@ -1,9 +1,14 @@
 import React, { useMemo } from 'react';
-import { Routes, Route, Outlet } from 'react-router-dom';
+import { Routes, Route, Outlet, Navigate } from 'react-router-dom';
+import { Meteor } from 'meteor/meteor';
+import { useTracker } from 'meteor/react-meteor-data';
 import { Group, Panel } from 'react-resizable-panels';
 import { Sidebar } from './Sidebar.jsx';
 import { Header } from './Header.jsx';
 import { BookmarkList } from './BookmarkList.jsx';
+import { Development } from './Development.jsx';
+import { LoginPage } from './auth/LoginPage.jsx';
+import { RegisterPage } from './auth/RegisterPage.jsx';
 
 const STORAGE_KEY = 'sidebarWidth';
 const PANEL_SIDEBAR = 'sidebar';
@@ -30,6 +35,25 @@ function readDefaultLayout() {
     return undefined;
   }
 }
+
+const RequireAuth = ({ children }) => {
+  const { userId, loggingIn } = useTracker(() => ({
+    userId: Meteor.userId(),
+    loggingIn: Meteor.loggingIn(),
+  }));
+
+  if (loggingIn) {
+    return (
+      <div className="flex min-h-screen items-center justify-center text-gray-500">
+        Loading...
+      </div>
+    );
+  }
+  if (!userId) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+};
 
 const AppLayout = () => {
   const defaultLayout = useMemo(() => readDefaultLayout(), []);
@@ -67,10 +91,20 @@ const AppLayout = () => {
 
 export const App = () => (
   <Routes>
-    <Route path="/" element={<AppLayout />}>
+    <Route path="login" element={<LoginPage />} />
+    <Route path="register" element={<RegisterPage />} />
+    <Route
+      path="/"
+      element={(
+        <RequireAuth>
+          <AppLayout />
+        </RequireAuth>
+      )}
+    >
       <Route index element={<BookmarkList />} />
       <Route path=":tag" element={<BookmarkList />} />
       <Route path="uncategorized" element={<BookmarkList />} />
     </Route>
+    <Route path="development" element={<Development />} />
   </Routes>
 );

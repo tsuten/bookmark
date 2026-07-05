@@ -20,9 +20,9 @@ export function validateHttpUrlString(value) {
 export function bookmarkUrlErrorMessage(errorCode) {
   switch (errorCode) {
     case 'required':
-      return 'URL を入力してください';
+      return 'Please enter a URL.';
     case 'invalidHttpUrl':
-      return 'http または https の有効な URL を入力してください';
+      return 'Please enter a valid http or https URL.';
     default:
       return '';
   }
@@ -49,10 +49,11 @@ export const BookmarkItemSchema = new SimpleSchema({
   tags: { type: Array, optional: true },
   'tags.$': String,
   note: { type: String, optional: true, trim: true },
+  userId: { type: String },
 });
 
-export async function insertBookmarkItem(doc = {}) {
-  const cleaned = BookmarkItemSchema.clean(doc);
+export async function insertBookmarkItem(doc = {}, userId) {
+  const cleaned = BookmarkItemSchema.clean({ ...doc, userId });
   BookmarkItemSchema.validate(cleaned);
   await BookmarkItemsCollection.insertAsync({
     ...cleaned,
@@ -61,11 +62,18 @@ export async function insertBookmarkItem(doc = {}) {
 }
 
 Meteor.methods({
-  addBookmarkItem(doc = {}) {
-    return insertBookmarkItem(doc);
+  async addBookmarkItem(doc = {}) {
+    if (!this.userId) {
+      throw new Meteor.Error('not-authorized');
+    }
+    return insertBookmarkItem(doc, this.userId);
   },
 
-  deleteBookmarkItem({ _id } = {}) {
-    BookmarkItemsCollection.removeAsync({ _id });
+  async deleteBookmarkItem({ _id } = {}) {
+    if (!this.userId) {
+      throw new Meteor.Error('not-authorized');
+    }
+    // Filtering by userId ensures users can only delete their own bookmarks.
+    await BookmarkItemsCollection.removeAsync({ _id, userId: this.userId });
   },
 });
