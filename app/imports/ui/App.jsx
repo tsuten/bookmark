@@ -104,6 +104,5 @@ export const App = () => (
       <Route path=":tag" element={<BookmarkList />} />
       <Route path="uncategorized" element={<BookmarkList />} />
     </Route>
-    <Route path="development" element={<Development />} />
   </Routes>
 );
