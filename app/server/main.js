@@ -13,13 +13,6 @@ Meteor.startup(async () => {
     return BookmarkItemsCollection.find({ userId: this.userId });
   });
 
-  Meteor.publish('bookmarkCollections', function () {
-    if (!this.userId) {
-      return this.ready();
-    }
-    return BookmarkCollectionsCollection.find({ userId: this.userId });
-  });
-
   Meteor.publish('bookmarkTags', function () {
     if (!this.userId) {
       return this.ready();
