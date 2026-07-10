@@ -49,6 +49,7 @@ export const BookmarkItemSchema = new SimpleSchema({
   tags: { type: Array, optional: true },
   'tags.$': String,
   note: { type: String, optional: true, trim: true },
+  is_archived: { type: Boolean, optional: true, defaultValue: false },
   userId: { type: String },
 });
 
@@ -101,6 +102,19 @@ Meteor.methods({
     }
     // Filtering by userId ensures users can only delete their own bookmarks.
     await BookmarkItemsCollection.removeAsync({ _id, userId: this.userId });
+  },
+
+  async archiveBookmarkItem({ _id } = {}) {
+    if (!this.userId) {
+      throw new Meteor.Error('not-authorized');
+    }
+    const updated = await BookmarkItemsCollection.updateAsync(
+      { _id, userId: this.userId },
+      { $set: { is_archived: true } }
+    );
+    if (updated === 0) {
+      throw new Meteor.Error('not-found', 'Bookmark not found.');
+    }
   },
 
   async updateBookmarkItem({ _id, title, url, tags } = {}) {

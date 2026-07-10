@@ -1,11 +1,16 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Routes, Route, Outlet, Navigate } from 'react-router-dom';
 import { Meteor } from 'meteor/meteor';
-import { useTracker } from 'meteor/react-meteor-data';
+import { useSubscribe, useTracker } from 'meteor/react-meteor-data';
 import { Group, Panel } from 'react-resizable-panels';
 import { Sidebar } from './Sidebar.jsx';
 import { Header } from './Header.jsx';
-import { BookmarkList } from './BookmarkList.jsx';
+import {
+  AllBookmarksPage,
+  ArchivedBookmarksPage,
+  TaggedBookmarksPage,
+  UncategorizedBookmarksPage,
+} from './BookmarkListPage.jsx';
 import { LoginPage } from './auth/LoginPage.jsx';
 import { RegisterPage } from './auth/RegisterPage.jsx';
 
@@ -56,6 +61,15 @@ const RequireAuth = ({ children }) => {
 
 const AppLayout = () => {
   const defaultLayout = useMemo(() => readDefaultLayout(), []);
+  const isBookmarksLoading = useSubscribe('bookmarkItems');
+  const [hasLoadedBookmarks, setHasLoadedBookmarks] = useState(false);
+  const bookmarksLoading = isBookmarksLoading();
+
+  useEffect(() => {
+    if (!bookmarksLoading) {
+      setHasLoadedBookmarks(true);
+    }
+  }, [bookmarksLoading]);
 
   return (
     <div className="app">
@@ -81,7 +95,7 @@ const AppLayout = () => {
         <Panel id={PANEL_MAIN}>
           <main>
             <Header />
-            <Outlet />
+            <Outlet context={{ isBookmarksLoading: !hasLoadedBookmarks }} />
           </main>
         </Panel>
       </Group>
@@ -101,9 +115,10 @@ export const App = () => (
         </RequireAuth>
       )}
     >
-      <Route index element={<BookmarkList />} />
-      <Route path=":tag" element={<BookmarkList />} />
-      <Route path="uncategorized" element={<BookmarkList />} />
+      <Route index element={<AllBookmarksPage />} />
+      <Route path="archived" element={<ArchivedBookmarksPage />} />
+      <Route path="uncategorized" element={<UncategorizedBookmarksPage />} />
+      <Route path=":tag" element={<TaggedBookmarksPage />} />
     </Route>
   </Routes>
 );

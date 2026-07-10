@@ -1,7 +1,5 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useFind, useSubscribe } from 'meteor/react-meteor-data';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Group, Panel, Separator, useGroupRef } from 'react-resizable-panels';
-import { BookmarkItemsCollection } from '../api/bookmarkItems';
 import { BookmarkItem } from './BookmarkItem.jsx';
 import { BookmarkEditDrawer } from './BookmarkEditDrawer.jsx';
 import {
@@ -11,7 +9,6 @@ import {
   ClockArrowDown,
   ClockArrowUp,
 } from 'lucide-react';
-import { useParams } from 'react-router-dom';
 import { Dropdown } from './molecules/Dropdown.jsx';
 
 const STORAGE_KEY = 'bookmarkEditPanelWidth';
@@ -50,18 +47,26 @@ function readSavedLayout() {
   }
 }
 
-function sortOptionForMode(mode) {
+function compareNullableStrings(a, b) {
+  return (a || '').localeCompare(b || '');
+}
+
+function compareDates(a, b) {
+  return new Date(a || 0).getTime() - new Date(b || 0).getTime();
+}
+
+function compareForMode(mode) {
   switch (mode) {
     case 'newest':
-      return { createdAt: -1 };
+      return (a, b) => compareDates(b.createdAt, a.createdAt);
     case 'oldest':
-      return { createdAt: 1 };
+      return (a, b) => compareDates(a.createdAt, b.createdAt);
     case 'az':
-      return { title: 1 };
+      return (a, b) => compareNullableStrings(a.title, b.title);
     case 'za':
-      return { title: -1 };
+      return (a, b) => compareNullableStrings(b.title, a.title);
     default:
-      return { createdAt: -1 };
+      return (a, b) => compareDates(b.createdAt, a.createdAt);
   }
 }
 
@@ -73,22 +78,16 @@ function scheduleLayout(groupRef, layout) {
   });
 }
 
-export const BookmarkList = () => {
-  const { tag } = useParams();
+export const BookmarkList = ({ title, bookmarkItems = [], isLoading = false }) => {
   const [sortBy, setSortBy] = useState('newest');
   const [activeBookmark, setActiveBookmark] = useState(null);
   const [isEditPanelOpen, setIsEditPanelOpen] = useState(false);
   const [isPanelAnimating, setIsPanelAnimating] = useState(false);
   const groupRef = useGroupRef();
   const closeTimerRef = useRef(null);
-  const isLoading = useSubscribe('bookmarkItems');
-  const bookmarkItems = useFind(
-    () =>
-      BookmarkItemsCollection.find(
-        tag ? { tags: tag } : {},
-        { sort: sortOptionForMode(sortBy) }
-      ),
-    [tag, sortBy]
+  const sortedBookmarkItems = useMemo(
+    () => [...bookmarkItems].sort(compareForMode(sortBy)),
+    [bookmarkItems, sortBy]
   );
 
   useEffect(() => {
@@ -133,7 +132,7 @@ export const BookmarkList = () => {
     }, PANEL_ANIMATION_MS);
   }, [groupRef, isEditPanelOpen]);
 
-  if (isLoading()) {
+  if (isLoading) {
     return <div className="flex h-full items-center justify-center text-gray-500">Loading...</div>;
   }
 
@@ -163,7 +162,7 @@ export const BookmarkList = () => {
             <div className="flex flex-row items-center justify-between gap-2">
               <div className="m-2 flex flex-row items-center gap-2">
                 <Bookmark className="w-4 h-4" />
-                <h2>{tag ? `Bookmarks by tag: ${tag}` : 'All Bookmarks'}</h2>
+                <h2>{title}</h2>
               </div>
               <div className="flex flex-row items-center gap-2">
                 <Dropdown
@@ -176,7 +175,7 @@ export const BookmarkList = () => {
             <hr />
           </div>
           <ul className="min-h-0 flex-1 overflow-y-auto">
-            {bookmarkItems.map((bookmarkItem) => (
+            {sortedBookmarkItems.map((bookmarkItem) => (
               <React.Fragment key={bookmarkItem._id}>
                 <BookmarkItem
                   bookmarkItem={bookmarkItem}
