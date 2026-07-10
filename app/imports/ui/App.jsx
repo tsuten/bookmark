@@ -98,6 +98,7 @@ const AppLayout = () => {
             <Outlet context={{ isBookmarksLoading: !hasLoadedBookmarks }} />
           </main>
         </Panel>
+        <button data-tally-open="Y5vDN0" className="bg-blue-500 text-white px-4 py-2 rounded-full fixed bottom-4 right-4">Found a bug?</button>
       </Group>
     </div>
   );
