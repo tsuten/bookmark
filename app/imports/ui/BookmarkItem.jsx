@@ -19,7 +19,7 @@ const deleteBookmarkItem = (bookmarkItem) => {
   Meteor.call('deleteBookmarkItem', { _id: bookmarkItem._id });
 }
 
-export const BookmarkItem = ({ bookmarkItem }) => {
+export const BookmarkItem = ({ bookmarkItem, onEdit }) => {
   return (
     <li>
         <div className="group flex flex-row gap-2 hover:bg-gray-100 justify-between">
@@ -40,7 +40,7 @@ export const BookmarkItem = ({ bookmarkItem }) => {
             </div>
           </a>
           <div className="hidden shrink-0 items-center gap-2 group-hover:flex">
-              <button type="button" className="hover:bg-gray-200 p-2 rounded-sm text-blue-500"><Pencil className="w-4 h-4" /></button>
+              <button type="button" className="hover:bg-gray-200 p-2 rounded-sm text-blue-500" onClick={() => onEdit(bookmarkItem)}><Pencil className="w-4 h-4" /></button>
               <button type="button" className="hover:bg-gray-200 p-2 rounded-sm text-red-500" onClick={() => deleteBookmarkItem(bookmarkItem)}><Trash className="w-4 h-4" /></button>
           </div>
         </div>

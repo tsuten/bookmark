@@ -60,6 +60,7 @@ const AppLayout = () => {
   return (
     <div className="app">
       <Group
+        className="h-full"
         orientation="horizontal"
         defaultLayout={defaultLayout}
         onLayoutChanged={(layout) => {
