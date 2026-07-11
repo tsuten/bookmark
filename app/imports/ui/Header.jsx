@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { Meteor } from 'meteor/meteor';
 import { Plus, Search, X } from 'lucide-react';
 import { InputWithIcon } from './molecules/InputWithIcon';
@@ -62,11 +62,14 @@ export const Header = ({
   onClearSearch,
 }) => {
   const hasSearchText = searchText.trim() !== '';
+  const handleSearchSubmit = useCallback((event) => {
+    event.preventDefault();
+  }, []);
 
   return (
     <header className="flex flex-col gap-3 border-b border-gray-200 px-4 py-3">
       <div className="flex min-w-0 flex-row items-center gap-2">
-        <form className="flex min-w-0 flex-1 items-center gap-2" onSubmit={(event) => event.preventDefault()}>
+        <form className="flex min-w-0 flex-1 items-center gap-2" onSubmit={handleSearchSubmit}>
           <InputWithIcon
             icon={<Search className="w-4 h-4" />}
             placeholder="Search bookmarks"
