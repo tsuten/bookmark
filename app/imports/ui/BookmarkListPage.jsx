@@ -13,17 +13,30 @@ const uncategorizedBookmarkQuery = {
 };
 
 const BookmarkListPage = ({ title, query }) => {
-  const { isBookmarksLoading = false } = useOutletContext() ?? {};
+  const { isBookmarksLoading = false, searchText = '' } = useOutletContext() ?? {};
   const bookmarkItems = useFind(
     () => BookmarkItemsCollection.find(query),
     [query]
   );
+  const normalizedSearchText = searchText.trim().toLowerCase();
+  const filteredBookmarkItems = useMemo(() => {
+    if (!normalizedSearchText) {
+      return bookmarkItems;
+    }
+    return bookmarkItems.filter((bookmarkItem) => {
+      const title = (bookmarkItem.title || '').toLowerCase();
+      const url = (bookmarkItem.url || '').toLowerCase();
+      return title.includes(normalizedSearchText) || url.includes(normalizedSearchText);
+    });
+  }, [bookmarkItems, normalizedSearchText]);
 
   return (
     <BookmarkList
       title={title}
-      bookmarkItems={bookmarkItems}
+      bookmarkItems={filteredBookmarkItems}
       isLoading={isBookmarksLoading}
+      searchText={searchText}
+      totalBookmarkCount={bookmarkItems.length}
     />
   );
 };

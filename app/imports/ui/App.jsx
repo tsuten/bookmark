@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Routes, Route, Outlet, Navigate } from 'react-router-dom';
 import { Meteor } from 'meteor/meteor';
 import { useSubscribe, useTracker } from 'meteor/react-meteor-data';
@@ -63,7 +63,9 @@ const AppLayout = () => {
   const defaultLayout = useMemo(() => readDefaultLayout(), []);
   const isBookmarksLoading = useSubscribe('bookmarkItems');
   const [hasLoadedBookmarks, setHasLoadedBookmarks] = useState(false);
+  const [searchText, setSearchText] = useState('');
   const bookmarksLoading = isBookmarksLoading();
+  const handleClearSearch = useCallback(() => setSearchText(''), []);
 
   useEffect(() => {
     if (!bookmarksLoading) {
@@ -94,8 +96,17 @@ const AppLayout = () => {
         </Panel>
         <Panel id={PANEL_MAIN}>
           <main>
-            <Header />
-            <Outlet context={{ isBookmarksLoading: !hasLoadedBookmarks }} />
+            <Header
+              searchText={searchText}
+              onSearchTextChange={setSearchText}
+              onClearSearch={handleClearSearch}
+            />
+            <Outlet
+              context={{
+                isBookmarksLoading: !hasLoadedBookmarks,
+                searchText,
+              }}
+            />
           </main>
         </Panel>
         <button data-tally-open="Y5vDN0" className="bg-blue-500 text-white px-4 py-2 rounded-full fixed bottom-4 right-4">Found a bug?</button>

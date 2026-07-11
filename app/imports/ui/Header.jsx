@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Meteor } from 'meteor/meteor';
-import { Plus, Search } from 'lucide-react';
+import { Plus, Search, X } from 'lucide-react';
 import { InputWithIcon } from './molecules/InputWithIcon';
 import { UserMenu } from './UserMenu.jsx';
 import {
@@ -8,7 +8,7 @@ import {
   validateHttpUrlString,
 } from '../api/bookmarkItems';
 
-const insertBookmarkItem = () => {
+const AddBookmarkForm = () => {
   const [url, setUrl] = useState('');
   const [urlError, setUrlError] = useState('');
 
@@ -53,17 +53,41 @@ const insertBookmarkItem = () => {
         </p>
       ) : null} */}
     </div>
-  )
-}
+  );
+};
 
-export const Header = () => {
+export const Header = ({
+  searchText = '',
+  onSearchTextChange,
+  onClearSearch,
+}) => {
+  const hasSearchText = searchText.trim() !== '';
+
   return (
-    <header>
-      <form>
-        <InputWithIcon icon={<Search className="w-4 h-4" />} placeholder="search" />
-      </form>
+    <header className="flex flex-col gap-3 border-b border-gray-200 px-4 py-3">
+      <div className="flex min-w-0 flex-row items-center gap-2">
+        <form className="flex min-w-0 flex-1 items-center gap-2" onSubmit={(event) => event.preventDefault()}>
+          <InputWithIcon
+            icon={<Search className="w-4 h-4" />}
+            placeholder="Search bookmarks"
+            value={searchText}
+            onChange={(event) => onSearchTextChange?.(event.target.value)}
+            ariaLabel="Search bookmarks by title or URL"
+          />
+          {hasSearchText ? (
+            <button
+              type="button"
+              className="rounded-sm bg-gray-100 p-2 text-gray-600 hover:bg-gray-200"
+              aria-label="Clear search"
+              onClick={onClearSearch}
+            >
+              <X className="w-4 h-4" />
+            </button>
+          ) : null}
+        </form>
+      </div>
       <div className="flex flex-row items-center gap-2">
-        {insertBookmarkItem()}
+        <AddBookmarkForm />
         <UserMenu />
       </div>
     </header>

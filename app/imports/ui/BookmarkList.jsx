@@ -78,7 +78,13 @@ function scheduleLayout(groupRef, layout) {
   });
 }
 
-export const BookmarkList = ({ title, bookmarkItems = [], isLoading = false }) => {
+export const BookmarkList = ({
+  title,
+  bookmarkItems = [],
+  isLoading = false,
+  searchText = '',
+  totalBookmarkCount = bookmarkItems.length,
+}) => {
   const [sortBy, setSortBy] = useState('newest');
   const [activeBookmark, setActiveBookmark] = useState(null);
   const [isEditPanelOpen, setIsEditPanelOpen] = useState(false);
@@ -163,6 +169,11 @@ export const BookmarkList = ({ title, bookmarkItems = [], isLoading = false }) =
               <div className="m-2 flex flex-row items-center gap-2">
                 <Bookmark className="w-4 h-4" />
                 <h2>{title}</h2>
+                {searchText.trim() ? (
+                  <span className="text-sm text-gray-500">
+                    {bookmarkItems.length} / {totalBookmarkCount}
+                  </span>
+                ) : null}
               </div>
               <div className="flex flex-row items-center gap-2">
                 <Dropdown
