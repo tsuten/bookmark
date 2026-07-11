@@ -19,31 +19,16 @@ const BookmarkListPage = ({ title, query }) => {
     [query]
   );
   const normalizedSearchText = searchText.trim().toLowerCase();
-  const bookmarkItemsSearchSignature = useMemo(
-    () =>
-      bookmarkItems
-        .map((bookmarkItem) => {
-          const title = bookmarkItem.title || '';
-          const url = bookmarkItem.url || '';
-          return `${bookmarkItem._id}:${title}:${url}`;
-        })
-        .join('|'),
-    [bookmarkItems]
-  );
-  const stableBookmarkItems = useMemo(
-    () => bookmarkItems,
-    [bookmarkItemsSearchSignature]
-  );
   const filteredBookmarkItems = useMemo(() => {
     if (!normalizedSearchText) {
-      return stableBookmarkItems;
+      return bookmarkItems;
     }
-    return stableBookmarkItems.filter((bookmarkItem) => {
+    return bookmarkItems.filter((bookmarkItem) => {
       const title = (bookmarkItem.title || '').toLowerCase();
       const url = (bookmarkItem.url || '').toLowerCase();
       return title.includes(normalizedSearchText) || url.includes(normalizedSearchText);
     });
-  }, [stableBookmarkItems, normalizedSearchText]);
+  }, [bookmarkItems, normalizedSearchText]);
 
   return (
     <BookmarkList
