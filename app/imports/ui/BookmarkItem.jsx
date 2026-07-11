@@ -1,5 +1,5 @@
 import React from 'react';
-import { Archive, Pencil } from 'lucide-react';
+import { Archive, Pencil, StickyNote } from 'lucide-react';
 import { Meteor } from 'meteor/meteor';
 
 const formatCreatedAtLabel = (createdAt) => {
@@ -20,13 +20,15 @@ const archiveBookmarkItem = (bookmarkItem) => {
 };
 
 export const BookmarkItem = ({ bookmarkItem, onEdit }) => {
+  const note = bookmarkItem.note?.trim();
+
   return (
     <li>
         <div className="group flex flex-row gap-2 hover:bg-gray-100 justify-between">
-          <a href={bookmarkItem.url} target="_blank">
+          <a href={bookmarkItem.url} target="_blank" rel="noreferrer">
             <div className="flex flex-col p-3">
                 {bookmarkItem.title}
-                <div className="flex flex-row gap-4">
+                <div className="flex flex-row gap-4 items-center">
                     <span className="text-sm text-gray-500">
                     {(bookmarkItem.tags || []).join(', ') || 'No tags'}
                     </span>
@@ -36,6 +38,15 @@ export const BookmarkItem = ({ bookmarkItem, onEdit }) => {
                     <span className="text-sm text-gray-500">
                     {formatCreatedAtLabel(bookmarkItem.createdAt)}
                     </span>
+                    {note ? (
+                      <span
+                        className="inline-flex text-gray-400"
+                        title={note}
+                        aria-label="Has note"
+                      >
+                        <StickyNote className="w-3.5 h-3.5" aria-hidden />
+                      </span>
+                    ) : null}
                 </div>
             </div>
           </a>
