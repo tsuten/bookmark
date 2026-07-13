@@ -21,6 +21,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-resizable-panels": "^4.10.0",
+    "react-responsive": "^10.0.1",
     "react-router": "^6.30.3",
     "react-router-dom": "^6.30.3",
     "simpl-schema": "^3.4.7",

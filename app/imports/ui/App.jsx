@@ -1,10 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Routes, Route, Outlet, Navigate } from 'react-router-dom';
 import { Meteor } from 'meteor/meteor';
 import { useSubscribe, useTracker } from 'meteor/react-meteor-data';
-import { Group, Panel } from 'react-resizable-panels';
-import { Sidebar } from './Sidebar.jsx';
-import { Header } from './Header.jsx';
+import { useIsMobile } from './responsive';
+import { DesktopAppLayout } from './layout/DesktopAppLayout.jsx';
+import { MobileAppLayout } from './layout/MobileAppLayout.jsx';
 import {
   AllBookmarksPage,
   ArchivedBookmarksPage,
@@ -13,32 +13,6 @@ import {
 } from './BookmarkListPage.jsx';
 import { LoginPage } from './auth/LoginPage.jsx';
 import { RegisterPage } from './auth/RegisterPage.jsx';
-
-const STORAGE_KEY = 'sidebarWidth';
-const PANEL_SIDEBAR = 'sidebar';
-const PANEL_MAIN = 'main';
-
-function readDefaultLayout() {
-  try {
-    if (typeof window === 'undefined' || !window.localStorage) {
-      return undefined;
-    }
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw == null || raw === '') {
-      return undefined;
-    }
-    const p = parseFloat(raw);
-    if (!Number.isFinite(p) || p <= 0 || p >= 100) {
-      return undefined;
-    }
-    return {
-      [PANEL_SIDEBAR]: p,
-      [PANEL_MAIN]: 100 - p,
-    };
-  } catch {
-    return undefined;
-  }
-}
 
 const RequireAuth = ({ children }) => {
   const { userId, loggingIn } = useTracker(() => ({
@@ -60,7 +34,7 @@ const RequireAuth = ({ children }) => {
 };
 
 const AppLayout = () => {
-  const defaultLayout = useMemo(() => readDefaultLayout(), []);
+  const isMobile = useIsMobile();
   const isBookmarksLoading = useSubscribe('bookmarkItems');
   const [hasLoadedBookmarks, setHasLoadedBookmarks] = useState(false);
   const bookmarksLoading = isBookmarksLoading();
@@ -71,37 +45,13 @@ const AppLayout = () => {
     }
   }, [bookmarksLoading]);
 
-  return (
-    <div className="app">
-      <Group
-        className="h-full"
-        orientation="horizontal"
-        defaultLayout={defaultLayout}
-        onLayoutChanged={(layout) => {
-          const w = layout[PANEL_SIDEBAR];
-          if (typeof w !== 'number' || !Number.isFinite(w)) {
-            return;
-          }
-          try {
-            localStorage.setItem(STORAGE_KEY, String(w));
-          } catch {
-            // private mode, quota, etc.
-          }
-        }}
-      >
-        <Panel id={PANEL_SIDEBAR} minSize={100} defaultSize={200} maxSize={300}>
-          <Sidebar />
-        </Panel>
-        <Panel id={PANEL_MAIN}>
-          <main>
-            <Header />
-            <Outlet context={{ isBookmarksLoading: !hasLoadedBookmarks }} />
-          </main>
-        </Panel>
-        <button data-tally-open="Y5vDN0" className="bg-blue-500 text-white px-4 py-2 rounded-full fixed bottom-4 right-4">Found a bug?</button>
-      </Group>
-    </div>
-  );
+  const layoutProps = { isBookmarksLoading: !hasLoadedBookmarks };
+
+  if (isMobile) {
+    return <MobileAppLayout {...layoutProps} />;
+  }
+
+  return <DesktopAppLayout {...layoutProps} />;
 };
 
 export const App = () => (
