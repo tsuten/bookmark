@@ -50,6 +50,13 @@ export const BookmarkItemSchema = new SimpleSchema({
   'tags.$': String,
   note: { type: String, optional: true, trim: true },
   is_archived: { type: Boolean, optional: true, defaultValue: false },
+  previewImageKey: { type: String, optional: true },
+  previewImageUrl: { type: String, optional: true },
+  faviconKey: { type: String, optional: true },
+  faviconUrl: { type: String, optional: true },
+  ogTitle: { type: String, optional: true, trim: true },
+  ogDescription: { type: String, optional: true, trim: true },
+  scrapedAt: { type: Date, optional: true },
   userId: { type: String },
 });
 
@@ -67,7 +74,7 @@ export const BookmarkItemUpdateSchema = new SimpleSchema({
 export async function insertBookmarkItem(doc = {}, userId) {
   const cleaned = BookmarkItemSchema.clean({ ...doc, userId });
   BookmarkItemSchema.validate(cleaned);
-  await BookmarkItemsCollection.insertAsync({
+  return BookmarkItemsCollection.insertAsync({
     ...cleaned,
     createdAt: new Date(),
   });
@@ -88,39 +95,3 @@ export async function updateBookmarkItem({ _id, ...doc } = {}, userId) {
   }
 }
 
-Meteor.methods({
-  async addBookmarkItem(doc = {}) {
-    if (!this.userId) {
-      throw new Meteor.Error('not-authorized');
-    }
-    return insertBookmarkItem(doc, this.userId);
-  },
-
-  async deleteBookmarkItem({ _id } = {}) {
-    if (!this.userId) {
-      throw new Meteor.Error('not-authorized');
-    }
-    // Filtering by userId ensures users can only delete their own bookmarks.
-    await BookmarkItemsCollection.removeAsync({ _id, userId: this.userId });
-  },
-
-  async archiveBookmarkItem({ _id } = {}) {
-    if (!this.userId) {
-      throw new Meteor.Error('not-authorized');
-    }
-    const updated = await BookmarkItemsCollection.updateAsync(
-      { _id, userId: this.userId },
-      { $set: { is_archived: true } }
-    );
-    if (updated === 0) {
-      throw new Meteor.Error('not-found', 'Bookmark not found.');
-    }
-  },
-
-  async updateBookmarkItem({ _id, title, url, tags } = {}) {
-    if (!this.userId) {
-      throw new Meteor.Error('not-authorized');
-    }
-    return updateBookmarkItem({ _id, title, url, tags }, this.userId);
-  },
-});

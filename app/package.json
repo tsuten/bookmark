@@ -8,6 +8,7 @@
     "visualize": "meteor --production --extra-packages bundle-visualizer"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1086.0",
     "@babel/runtime": "^7.29.7",
     "@swc/helpers": "^0.5.17",
     "@tailwindcss/postcss": "^4.2.2",

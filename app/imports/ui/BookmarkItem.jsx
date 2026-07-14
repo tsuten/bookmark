@@ -23,8 +23,17 @@ export const BookmarkItem = ({ bookmarkItem, onEdit }) => {
   return (
     <li>
         <div className="group flex flex-row gap-2 hover:bg-gray-100 justify-between">
-          <a href={bookmarkItem.url} target="_blank">
-            <div className="flex flex-col p-3">
+          <a href={bookmarkItem.url} target="_blank" rel="noreferrer">
+            <div className="flex flex-row items-start gap-3 p-3">
+              {bookmarkItem.faviconUrl ? (
+                <img
+                  src={bookmarkItem.faviconUrl}
+                  alt=""
+                  className="mt-0.5 h-4 w-4 shrink-0"
+                  loading="lazy"
+                />
+              ) : null}
+              <div className="flex flex-col">
                 {bookmarkItem.title}
                 <div className="flex flex-row gap-4">
                     <span className="text-sm text-gray-500">
@@ -37,6 +46,7 @@ export const BookmarkItem = ({ bookmarkItem, onEdit }) => {
                     {formatCreatedAtLabel(bookmarkItem.createdAt)}
                     </span>
                 </div>
+              </div>
             </div>
           </a>
           <div className="hidden shrink-0 items-center gap-2 group-hover:flex">

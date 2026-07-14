@@ -4,6 +4,8 @@ import { BookmarkCollectionsCollection } from '/imports/api/bookmarkCollections'
 import { WebApp } from 'meteor/webapp';
 import '/imports/api/auth/server/firebaseAdmin';
 import '/imports/api/auth/server/loginHandler';
+import '/imports/api/bookmarkItems/server';
+import '/imports/api/storage/server/r2Client';
 
 Meteor.startup(async () => {
   Meteor.publish('bookmarkItems', function () {
