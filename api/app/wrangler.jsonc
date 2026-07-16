@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "app",
+  "name": "bookmark-api",
   "main": "./dist/index.js",
   "compatibility_date": "2026-07-16",
   "compatibility_flags": [
