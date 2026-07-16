@@ -35,7 +35,10 @@ export const Sidebar = () => {
   const { pathname } = useLocation();
   const isLoading = useSubscribe('bookmarkTags');
   const itemsWithTags = useFind(() =>
-    BookmarkItemsCollection.find({}, { fields: { tags: 1 } })
+    BookmarkItemsCollection.find(
+      { is_archived: { $ne: true } },
+      { fields: { tags: 1 } }
+    )
   );
   const bookmarkTags = useMemo(
     () => uniqueTagsFromItems(itemsWithTags),
@@ -59,13 +62,13 @@ export const Sidebar = () => {
           to="/uncategorized"
           placeholder="Uncategorized"
           icon={<List className="w-4 h-4" />}
-          isActive={routeTag === 'uncategorized'}
+          isActive={pathname === '/uncategorized'}
         />
         <SidebarItem
           to="/archived"
           placeholder="Archived"
           icon={<Archive className="w-4 h-4" />}
-          isActive={routeTag === 'archived'}
+          isActive={pathname === '/archived'}
         />
         <hr />
         <div className="flex w-full min-w-0 flex-row gap-2 items-center">

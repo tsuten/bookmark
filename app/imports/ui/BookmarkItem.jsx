@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pencil, Trash } from 'lucide-react';
+import { Archive, Pencil } from 'lucide-react';
 import { Meteor } from 'meteor/meteor';
 
 const formatCreatedAtLabel = (createdAt) => {
@@ -15,11 +15,11 @@ const formatCreatedAtLabel = (createdAt) => {
   return d.toLocaleDateString(undefined, { month: 'numeric', day: 'numeric' });
 };
 
-const deleteBookmarkItem = (bookmarkItem) => {
-  Meteor.call('deleteBookmarkItem', { _id: bookmarkItem._id });
-}
+const archiveBookmarkItem = (bookmarkItem) => {
+  Meteor.call('archiveBookmarkItem', { _id: bookmarkItem._id });
+};
 
-export const BookmarkItem = ({ bookmarkItem }) => {
+export const BookmarkItem = ({ bookmarkItem, onEdit }) => {
   return (
     <li>
         <div className="group flex flex-row gap-2 hover:bg-gray-100 justify-between">
@@ -40,8 +40,17 @@ export const BookmarkItem = ({ bookmarkItem }) => {
             </div>
           </a>
           <div className="hidden shrink-0 items-center gap-2 group-hover:flex">
-              <button type="button" className="hover:bg-gray-200 p-2 rounded-sm text-blue-500"><Pencil className="w-4 h-4" /></button>
-              <button type="button" className="hover:bg-gray-200 p-2 rounded-sm text-red-500" onClick={() => deleteBookmarkItem(bookmarkItem)}><Trash className="w-4 h-4" /></button>
+              <button type="button" className="hover:bg-gray-200 p-2 rounded-sm text-blue-500" onClick={() => onEdit(bookmarkItem)}><Pencil className="w-4 h-4" /></button>
+              {!bookmarkItem.is_archived ? (
+                <button
+                  type="button"
+                  className="hover:bg-gray-200 p-2 rounded-sm text-gray-600"
+                  aria-label="Archive"
+                  onClick={() => archiveBookmarkItem(bookmarkItem)}
+                >
+                  <Archive className="w-4 h-4" />
+                </button>
+              ) : null}
           </div>
         </div>
     </li>
