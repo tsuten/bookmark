@@ -1,5 +1,7 @@
 import { createRoute } from 'honox/factory'
-import { deleteBookmarkItem, updateBookmarkItem } from '../../lib/bookmarkItems'
+import { cleanBookmarkItemUpdate, parseObjectId } from '../../lib/bookmarkItems'
+import { getBookmarkItemModel } from '../../lib/db/models/BookmarkItem'
+import { ApiError } from '../../lib/errors'
 import { handleBookmarkRoute } from '../../lib/routeHelpers'
 
 export const PATCH = createRoute(async (c) => {
@@ -9,12 +11,24 @@ export const PATCH = createRoute(async (c) => {
       url?: unknown
       tags?: unknown
     }
-    await updateBookmarkItem({ _id: c.req.param('id'), title, url, tags }, userId)
+    const _id = parseObjectId(c.req.param('id'))
+    const cleaned = cleanBookmarkItemUpdate({ title, url, tags })
+    const BookmarkItemModel = await getBookmarkItemModel()
+    const updated = await BookmarkItemModel.updateOne(
+      { _id, userId },
+      { $set: { ...cleaned, updatedAt: new Date() } },
+    )
+    if (updated.matchedCount === 0) {
+      throw new ApiError('not-found', 'Bookmark not found.', 404)
+    }
   })
 })
 
 export const DELETE = createRoute(async (c) => {
   return handleBookmarkRoute(c, async (userId) => {
-    await deleteBookmarkItem({ _id: c.req.param('id') }, userId)
+    const _id = parseObjectId(c.req.param('id'))
+    const BookmarkItemModel = await getBookmarkItemModel()
+    // Filtering by userId ensures users can only delete their own bookmarks.
+    await BookmarkItemModel.deleteOne({ _id, userId })
   })
 })

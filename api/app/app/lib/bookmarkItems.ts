@@ -1,4 +1,3 @@
-import { getBookmarkItemModel } from './db/models/BookmarkItem'
 import { ApiError } from './errors'
 
 export function validateHttpUrlString(value: unknown) {
@@ -60,7 +59,7 @@ function assertValidUrl(url: unknown) {
   throw new ApiError('invalid-args', bookmarkUrlErrorMessage(result.errorCode))
 }
 
-function parseObjectId(id: unknown): string {
+export function parseObjectId(id: unknown): string {
   if (typeof id !== 'string' || !/^[a-f\d]{24}$/i.test(id)) {
     throw new ApiError('invalid-args', 'Bookmark _id must be a valid ObjectId.')
   }
@@ -85,7 +84,7 @@ export function parseBookmarkListPagination(query: Record<string, string | undef
   }
 }
 
-function serializeBookmarkItem(doc: {
+export function serializeBookmarkItem(doc: {
   _id: { toString(): string }
   title: string
   url: string
@@ -106,31 +105,6 @@ function serializeBookmarkItem(doc: {
     userId: doc.userId,
     createdAt: doc.createdAt.toISOString(),
     updatedAt: (doc.updatedAt ?? doc.createdAt).toISOString(),
-  }
-}
-
-export async function listBookmarkItems(
-  userId: string,
-  { page, limit, skip }: { page: number; limit: number; skip: number },
-) {
-  const BookmarkItemModel = await getBookmarkItemModel()
-  const filter = { userId }
-
-  const [items, total] = await Promise.all([
-    BookmarkItemModel.find(filter)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .lean(),
-    BookmarkItemModel.countDocuments(filter),
-  ])
-
-  return {
-    items: items.map(serializeBookmarkItem),
-    page,
-    limit,
-    total,
-    totalPages: total === 0 ? 0 : Math.ceil(total / limit),
   }
 }
 
@@ -169,50 +143,4 @@ export function cleanBookmarkItemUpdate(doc: BookmarkItemUpdateInput = {}) {
   }
 
   return cleaned
-}
-
-export async function insertBookmarkItem(doc: BookmarkItemInput = {}, userId: string) {
-  const cleaned = cleanBookmarkItemDoc(doc, userId)
-  const BookmarkItemModel = await getBookmarkItemModel()
-  const now = new Date()
-  await BookmarkItemModel.create({
-    ...cleaned,
-    createdAt: now,
-    updatedAt: now,
-  })
-}
-
-export async function deleteBookmarkItem({ _id }: { _id?: unknown } = {}, userId: string) {
-  const objectId = parseObjectId(_id)
-  const BookmarkItemModel = await getBookmarkItemModel()
-  // Filtering by userId ensures users can only delete their own bookmarks.
-  await BookmarkItemModel.deleteOne({ _id: objectId, userId })
-}
-
-export async function archiveBookmarkItem({ _id }: { _id?: unknown } = {}, userId: string) {
-  const objectId = parseObjectId(_id)
-  const BookmarkItemModel = await getBookmarkItemModel()
-  const updated = await BookmarkItemModel.updateOne(
-    { _id: objectId, userId },
-    { $set: { is_archived: true, updatedAt: new Date() } },
-  )
-  if (updated.matchedCount === 0) {
-    throw new ApiError('not-found', 'Bookmark not found.', 404)
-  }
-}
-
-export async function updateBookmarkItem(
-  { _id, title, url, tags }: { _id?: unknown; title?: unknown; url?: unknown; tags?: unknown } = {},
-  userId: string,
-) {
-  const objectId = parseObjectId(_id)
-  const cleaned = cleanBookmarkItemUpdate({ title, url, tags })
-  const BookmarkItemModel = await getBookmarkItemModel()
-  const updated = await BookmarkItemModel.updateOne(
-    { _id: objectId, userId },
-    { $set: { ...cleaned, updatedAt: new Date() } },
-  )
-  if (updated.matchedCount === 0) {
-    throw new ApiError('not-found', 'Bookmark not found.', 404)
-  }
 }
