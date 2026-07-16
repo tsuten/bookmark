@@ -4,9 +4,20 @@ import honox from 'honox/vite'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
+  ssr: {
+    external: ['mongoose'],
+  },
   plugins: [
     honox({
-      devServer: { adapter },
+      devServer: {
+        adapter: (options) =>
+          adapter({
+            ...options,
+            proxy: {
+              configPath: './wrangler.jsonc',
+            },
+          }),
+      },
     }),
     build(),
   ],
