@@ -1,0 +1,62 @@
+import React, { useMemo } from 'react';
+import { useFind } from 'meteor/react-meteor-data';
+import { useOutletContext, useParams } from 'react-router-dom';
+import { BookmarkItemsCollection } from '../api/bookmarkItems';
+import { BookmarkList } from './BookmarkList.jsx';
+
+const activeBookmarkQuery = { is_archived: { $ne: true } };
+const archivedBookmarkQuery = { is_archived: true };
+
+const uncategorizedBookmarkQuery = {
+  ...activeBookmarkQuery,
+  $or: [{ tags: { $exists: false } }, { tags: { $size: 0 } }],
+};
+
+const BookmarkListPage = ({ title, query }) => {
+  const { isBookmarksLoading = false } = useOutletContext() ?? {};
+  const bookmarkItems = useFind(
+    () => BookmarkItemsCollection.find(query),
+    [query]
+  );
+
+  return (
+    <BookmarkList
+      title={title}
+      bookmarkItems={bookmarkItems}
+      isLoading={isBookmarksLoading}
+    />
+  );
+};
+
+export const AllBookmarksPage = () => (
+  <BookmarkListPage title="All Bookmarks" query={activeBookmarkQuery} />
+);
+
+export const ArchivedBookmarksPage = () => (
+  <BookmarkListPage
+    title="Archived Bookmarks"
+    query={archivedBookmarkQuery}
+  />
+);
+
+export const UncategorizedBookmarksPage = () => (
+  <BookmarkListPage
+    title="Uncategorized Bookmarks"
+    query={uncategorizedBookmarkQuery}
+  />
+);
+
+export const TaggedBookmarksPage = () => {
+  const { tag } = useParams();
+  const query = useMemo(
+    () => ({ ...activeBookmarkQuery, tags: tag }),
+    [tag]
+  );
+
+  return (
+    <BookmarkListPage
+      title={`Bookmarks by tag: ${tag}`}
+      query={query}
+    />
+  );
+};
