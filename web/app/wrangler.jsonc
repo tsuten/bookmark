@@ -9,4 +9,6 @@
   "compatibility_flags": [
     "nodejs_compat"
   ]
+  // Production Firebase config: set VITE_FIREBASE_* in the Cloudflare dashboard.
+  // Local wrangler dev/preview: copy .dev.vars.example to .dev.vars.
 }

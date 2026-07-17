@@ -9,6 +9,8 @@ import {
 
 import type { Route } from "./+types/root";
 import { AuthProvider } from "~/lib/auth/auth-context";
+import { resolveFirebaseConfig } from "~/lib/env/firebase-config";
+import { cloudflareContext } from "~/load-context";
 import "./app.css";
 
 export const links: Route.LinksFunction = () => [
@@ -23,6 +25,13 @@ export const links: Route.LinksFunction = () => [
     href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
   },
 ];
+
+export function loader({ context }: Route.LoaderArgs) {
+  const cloudflare = context.get(cloudflareContext);
+  return {
+    firebaseConfig: resolveFirebaseConfig(cloudflare),
+  };
+}
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -42,9 +51,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function App() {
+export default function App({ loaderData }: Route.ComponentProps) {
   return (
-    <AuthProvider>
+    <AuthProvider firebaseConfig={loaderData.firebaseConfig}>
       <Outlet />
     </AuthProvider>
   );

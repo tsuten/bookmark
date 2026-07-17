@@ -12,7 +12,8 @@ import {
   signOut as firebaseSignOut,
   type User,
 } from "firebase/auth";
-import { getFirebaseAuth, isFirebaseConfigured } from "./firebase";
+import { configureFirebase, getFirebaseAuth, isFirebaseConfigured } from "./firebase";
+import type { FirebasePublicConfig } from "~/lib/env/firebase-config";
 
 type AuthContextValue = {
   user: User | null;
@@ -23,12 +24,21 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export function AuthProvider({
+  children,
+  firebaseConfig,
+}: {
+  children: ReactNode;
+  firebaseConfig: FirebasePublicConfig | null;
+}) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    configureFirebase(firebaseConfig);
+
     if (!isFirebaseConfigured()) {
+      setUser(null);
       setLoading(false);
       return;
     }
@@ -40,7 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     return unsubscribe;
-  }, []);
+  }, [firebaseConfig]);
 
   const signOut = useCallback(async () => {
     if (!isFirebaseConfigured()) {
