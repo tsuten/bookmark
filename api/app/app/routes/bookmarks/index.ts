@@ -1,34 +1,16 @@
 import { createRoute } from 'honox/factory'
 import {
   cleanBookmarkItemDoc,
+  listBookmarks,
   parseBookmarkListPagination,
-  serializeBookmarkItem,
 } from '../../lib/bookmarkItems'
 import { getBookmarkItemModel } from '../../lib/db/models/BookmarkItem'
 import { handleBookmarkJsonRoute, handleBookmarkRoute } from '../../lib/routeHelpers'
 
 export const GET = createRoute(async (c) => {
   return handleBookmarkJsonRoute(c, async (userId) => {
-    const BookmarkItemModel = await getBookmarkItemModel()
-    const { page, limit, skip } = parseBookmarkListPagination(c.req.query())
-    const filter = { userId }
-
-    const [items, total] = await Promise.all([
-      BookmarkItemModel.find(filter)
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .lean(),
-      BookmarkItemModel.countDocuments(filter),
-    ])
-
-    return {
-      items: items.map(serializeBookmarkItem),
-      page,
-      limit,
-      total,
-      totalPages: total === 0 ? 0 : Math.ceil(total / limit),
-    }
+    const pagination = parseBookmarkListPagination(c.req.query())
+    return listBookmarks(userId, 'active', pagination)
   })
 })
 

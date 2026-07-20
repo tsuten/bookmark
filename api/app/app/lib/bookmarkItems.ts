@@ -84,6 +84,89 @@ export function parseBookmarkListPagination(query: Record<string, string | undef
   }
 }
 
+export type BookmarkListScope =
+  | 'active'
+  | 'archived'
+  | 'uncategorized'
+  | { tag: string }
+
+export type BookmarkListPagination = ReturnType<typeof parseBookmarkListPagination>
+
+export type BookmarkListResponse = {
+  items: ReturnType<typeof serializeBookmarkItem>[]
+  page: number
+  limit: number
+  total: number
+  totalPages: number
+}
+
+export function buildListFilter(userId: string, scope: BookmarkListScope) {
+  switch (scope) {
+    case 'active':
+      return { userId, is_archived: { $ne: true } }
+    case 'archived':
+      return { userId, is_archived: true }
+    case 'uncategorized':
+      return {
+        userId,
+        is_archived: { $ne: true },
+        $or: [{ tags: { $exists: false } }, { tags: { $size: 0 } }],
+      }
+    default:
+      return {
+        userId,
+        is_archived: { $ne: true },
+        tags: scope.tag,
+      }
+  }
+}
+
+export async function listBookmarks(
+  userId: string,
+  scope: BookmarkListScope,
+  pagination: BookmarkListPagination,
+): Promise<BookmarkListResponse> {
+  const { getBookmarkItemModel } = await import('./db/models/BookmarkItem')
+  const BookmarkItemModel = await getBookmarkItemModel()
+  const filter = buildListFilter(userId, scope)
+  const { page, limit, skip } = pagination
+
+  const [items, total] = await Promise.all([
+    BookmarkItemModel.find(filter)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+    BookmarkItemModel.countDocuments(filter),
+  ])
+
+  return {
+    items: items.map(serializeBookmarkItem),
+    page,
+    limit,
+    total,
+    totalPages: total === 0 ? 0 : Math.ceil(total / limit),
+  }
+}
+
+export async function listBookmarkTags(userId: string): Promise<string[]> {
+  const { getBookmarkItemModel } = await import('./db/models/BookmarkItem')
+  const BookmarkItemModel = await getBookmarkItemModel()
+  const items = await BookmarkItemModel.find(
+    { userId, is_archived: { $ne: true } },
+    { tags: 1 },
+  ).lean()
+
+  const tagSet = new Set<string>()
+  for (const item of items) {
+    for (const tag of item.tags ?? []) {
+      tagSet.add(tag)
+    }
+  }
+
+  return [...tagSet].sort((a, b) => a.localeCompare(b))
+}
+
 export function serializeBookmarkItem(doc: {
   _id: { toString(): string }
   title: string

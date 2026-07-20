@@ -9,5 +9,5 @@ export default createRoute(async (c, next) => {
     )
   }
   await connectDB(c.env.MONGODB_URI)
-  await next()
+  return next()
 })

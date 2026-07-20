@@ -14,6 +14,8 @@ import {
 } from "firebase/auth";
 import { configureFirebase, getFirebaseAuth, isFirebaseConfigured } from "./firebase";
 import type { FirebasePublicConfig } from "~/lib/env/firebase-config";
+import { ensureProfile } from "~/lib/api/profile";
+import { ApiError } from "~/lib/api/client";
 
 type AuthContextValue = {
   user: User | null;
@@ -44,9 +46,20 @@ export function AuthProvider({
     }
 
     const auth = getFirebaseAuth();
-    const unsubscribe = onAuthStateChanged(auth, (nextUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (nextUser) => {
       setUser(nextUser);
       setLoading(false);
+
+      if (nextUser) {
+        try {
+          const token = await nextUser.getIdToken();
+          await ensureProfile(token);
+        } catch (error) {
+          if (!(error instanceof ApiError && error.code === "api-not-configured")) {
+            console.error("[profile] ensureProfile failed:", error);
+          }
+        }
+      }
     });
 
     return unsubscribe;

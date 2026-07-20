@@ -1,10 +1,10 @@
-import { Outlet } from "react-router";
 import { RequireAuth } from "~/components/RequireAuth";
+import { AppLayout } from "~/components/layout/AppLayout";
 
 export default function AuthenticatedLayout() {
   return (
     <RequireAuth>
-      <Outlet />
+      <AppLayout />
     </RequireAuth>
   );
 }
