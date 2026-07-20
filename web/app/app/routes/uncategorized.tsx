@@ -1,19 +1,13 @@
-import type { Route } from "./+types/uncategorized";
-import { BookmarkListPage } from "~/components/bookmarks/BookmarkListPage";
 import { loadBookmarksForScope } from "~/lib/api/loaders";
+
+export const handle = {
+  title: "Uncategorized Bookmarks",
+};
 
 export async function clientLoader() {
   return loadBookmarksForScope("uncategorized");
 }
 
-export default function UncategorizedBookmarksPage({
-  loaderData,
-}: Route.ComponentProps) {
-  return (
-    <BookmarkListPage
-      title="Uncategorized Bookmarks"
-      items={loaderData.items}
-      error={loaderData.error}
-    />
-  );
+export default function UncategorizedRoute() {
+  return null;
 }

@@ -1,17 +1,14 @@
 import type { Route } from "./+types/home";
-import { BookmarkListPage } from "~/components/bookmarks/BookmarkListPage";
 import { loadBookmarksForScope } from "~/lib/api/loaders";
+
+export const handle = {
+  title: "All Bookmarks",
+};
 
 export async function clientLoader() {
   return loadBookmarksForScope("active");
 }
 
-export default function HomePage({ loaderData }: Route.ComponentProps) {
-  return (
-    <BookmarkListPage
-      title="All Bookmarks"
-      items={loaderData.items}
-      error={loaderData.error}
-    />
-  );
+export default function HomeRoute(_props: Route.ComponentProps) {
+  return null;
 }
