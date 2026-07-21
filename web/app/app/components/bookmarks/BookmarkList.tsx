@@ -173,7 +173,7 @@ export function BookmarkList({
       }}
     >
       <Panel id={PANEL_LIST} minSize={30}>
-        <div className="flex h-full min-h-0 flex-col">
+        <div className="relative flex h-full min-h-0 flex-col">
           <BookmarkListToolbar
             title={title}
             sortBy={sortBy}
@@ -186,6 +186,13 @@ export function BookmarkList({
             onEdit={handleOpenEdit}
             onArchive={handleArchive}
           />
+          <button
+            type="button"
+            data-tally-open="Y5vDN0"
+            className="absolute bottom-4 right-4 z-10 rounded-full bg-blue-500 px-4 py-2 text-white"
+          >
+            Found a bug?
+          </button>
         </div>
       </Panel>
 
