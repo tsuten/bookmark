@@ -38,7 +38,7 @@ export function BookmarkListItems({
       className={`min-h-0 flex-1 overflow-y-auto${isLoading ? " opacity-60" : ""}`}
     >
       {items.map((bookmarkItem) => (
-        <Fragment key={bookmarkItem._id}>
+        <Fragment key={bookmarkItem.id}>
           <BookmarkItemRow
             bookmarkItem={bookmarkItem}
             onEdit={onEdit}

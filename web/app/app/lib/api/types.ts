@@ -1,5 +1,5 @@
 export type BookmarkItem = {
-  _id: string;
+  id: string;
   title: string;
   url: string;
   tags?: string[];

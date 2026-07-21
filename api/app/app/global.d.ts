@@ -4,7 +4,7 @@ declare module 'hono' {
   interface Env {
     Variables: {}
     Bindings: {
-      MONGODB_URI: string
+      DB: D1Database
       FIREBASE_PROJECT_ID: string
     }
   }

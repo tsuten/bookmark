@@ -1,4 +1,6 @@
-import { getProfileModel } from './db/models/Profile'
+import { eq } from 'drizzle-orm'
+import { getDb } from './db'
+import { profiles } from './db/schema'
 import { ApiError } from './errors'
 
 function trimString(value: unknown): string | undefined {
@@ -9,14 +11,14 @@ function trimString(value: unknown): string | undefined {
 export function serializeProfile(doc: {
   userId: string
   displayName: string
-  createdAt: Date
-  updatedAt?: Date
+  createdAt: string
+  updatedAt: string
 }) {
   return {
     userId: doc.userId,
     displayName: doc.displayName,
-    createdAt: doc.createdAt.toISOString(),
-    updatedAt: (doc.updatedAt ?? doc.createdAt).toISOString(),
+    createdAt: doc.createdAt,
+    updatedAt: doc.updatedAt,
   }
 }
 
@@ -35,39 +37,66 @@ export function cleanProfileUpdateInput(body: Record<string, unknown> = {}) {
   return { displayName: body.displayName.trim() }
 }
 
-function isDuplicateKeyError(error: unknown): boolean {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'code' in error &&
-    (error as { code: number }).code === 11000
-  )
-}
-
-export async function ensureProfile(userId: string, input: { displayName: string }) {
-  const ProfileModel = await getProfileModel()
-  const existing = await ProfileModel.findOne({ userId }).lean()
+export async function ensureProfile(
+  db: D1Database,
+  userId: string,
+  input: { displayName: string },
+) {
+  const drizzle = getDb(db)
+  const existing = await drizzle.select().from(profiles).where(eq(profiles.userId, userId)).get()
   if (existing) {
     return { profile: existing, created: false as const }
   }
 
-  const now = new Date()
-  try {
-    const created = await ProfileModel.create({
+  const now = new Date().toISOString()
+  const inserted = await drizzle
+    .insert(profiles)
+    .values({
       userId,
       displayName: input.displayName,
       createdAt: now,
       updatedAt: now,
     })
-    return { profile: created.toObject(), created: true as const }
-  } catch (error) {
-    if (!isDuplicateKeyError(error)) {
-      throw error
-    }
-    const profile = await ProfileModel.findOne({ userId }).lean()
-    if (!profile) {
-      throw error
-    }
-    return { profile, created: false as const }
+    .onConflictDoNothing()
+    .returning()
+
+  if (inserted.length > 0) {
+    return { profile: inserted[0], created: true as const }
   }
+
+  const profile = await drizzle.select().from(profiles).where(eq(profiles.userId, userId)).get()
+  if (!profile) {
+    throw new ApiError('internal-error', 'Failed to create profile.', 500)
+  }
+
+  return { profile, created: false as const }
+}
+
+export async function getProfile(db: D1Database, userId: string) {
+  const drizzle = getDb(db)
+  return drizzle.select().from(profiles).where(eq(profiles.userId, userId)).get()
+}
+
+export async function updateProfile(
+  db: D1Database,
+  userId: string,
+  input: { displayName: string },
+) {
+  const drizzle = getDb(db)
+  const updated = await drizzle
+    .update(profiles)
+    .set({
+      displayName: input.displayName,
+      updatedAt: new Date().toISOString(),
+    })
+    .where(eq(profiles.userId, userId))
+    .returning()
+
+  return updated[0] ?? null
+}
+
+export async function deleteProfile(db: D1Database, userId: string): Promise<boolean> {
+  const drizzle = getDb(db)
+  const result = await drizzle.delete(profiles).where(eq(profiles.userId, userId))
+  return (result.meta?.changes ?? 0) > 0
 }

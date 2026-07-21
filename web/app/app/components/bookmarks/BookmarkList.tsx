@@ -139,7 +139,7 @@ export function BookmarkList({
   const handleArchive = async (bookmark: BookmarkItem) => {
     try {
       const token = await getAuthToken();
-      await archiveBookmark(token, bookmark._id);
+      await archiveBookmark(token, bookmark.id);
       onMutate();
     } catch (archiveError) {
       console.error("[bookmark] archive failed:", archiveError);

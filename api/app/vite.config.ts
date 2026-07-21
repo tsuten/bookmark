@@ -4,9 +4,6 @@ import honox from 'honox/vite'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  ssr: {
-    external: ['mongoose'],
-  },
   plugins: [
     honox({
       devServer: {

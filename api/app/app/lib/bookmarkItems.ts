@@ -1,4 +1,5 @@
 import { ApiError } from './errors'
+import type { BookmarkRow } from './db/schema'
 
 export function validateHttpUrlString(value: unknown) {
   if (typeof value !== 'string' || !value.trim()) {
@@ -40,6 +41,9 @@ type BookmarkItemUpdateInput = {
   tags?: unknown
 }
 
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+
 function trimString(value: unknown): string | undefined {
   if (typeof value !== 'string') return undefined
   return value.trim()
@@ -59,9 +63,9 @@ function assertValidUrl(url: unknown) {
   throw new ApiError('invalid-args', bookmarkUrlErrorMessage(result.errorCode))
 }
 
-export function parseObjectId(id: unknown): string {
-  if (typeof id !== 'string' || !/^[a-f\d]{24}$/i.test(id)) {
-    throw new ApiError('invalid-args', 'Bookmark _id must be a valid ObjectId.')
+export function parseUuid(id: unknown): string {
+  if (typeof id !== 'string' || !UUID_RE.test(id)) {
+    throw new ApiError('invalid-args', 'Bookmark id must be a valid UUID.')
   }
   return id
 }
@@ -100,94 +104,17 @@ export type BookmarkListResponse = {
   totalPages: number
 }
 
-export function buildListFilter(userId: string, scope: BookmarkListScope) {
-  switch (scope) {
-    case 'active':
-      return { userId, is_archived: { $ne: true } }
-    case 'archived':
-      return { userId, is_archived: true }
-    case 'uncategorized':
-      return {
-        userId,
-        is_archived: { $ne: true },
-        $or: [{ tags: { $exists: false } }, { tags: { $size: 0 } }],
-      }
-    default:
-      return {
-        userId,
-        is_archived: { $ne: true },
-        tags: scope.tag,
-      }
-  }
-}
-
-export async function listBookmarks(
-  userId: string,
-  scope: BookmarkListScope,
-  pagination: BookmarkListPagination,
-): Promise<BookmarkListResponse> {
-  const { getBookmarkItemModel } = await import('./db/models/BookmarkItem')
-  const BookmarkItemModel = await getBookmarkItemModel()
-  const filter = buildListFilter(userId, scope)
-  const { page, limit, skip } = pagination
-
-  const [items, total] = await Promise.all([
-    BookmarkItemModel.find(filter)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .lean(),
-    BookmarkItemModel.countDocuments(filter),
-  ])
-
+export function serializeBookmarkItem(doc: BookmarkRow) {
   return {
-    items: items.map(serializeBookmarkItem),
-    page,
-    limit,
-    total,
-    totalPages: total === 0 ? 0 : Math.ceil(total / limit),
-  }
-}
-
-export async function listBookmarkTags(userId: string): Promise<string[]> {
-  const { getBookmarkItemModel } = await import('./db/models/BookmarkItem')
-  const BookmarkItemModel = await getBookmarkItemModel()
-  const items = await BookmarkItemModel.find(
-    { userId, is_archived: { $ne: true } },
-    { tags: 1 },
-  ).lean()
-
-  const tagSet = new Set<string>()
-  for (const item of items) {
-    for (const tag of item.tags ?? []) {
-      tagSet.add(tag)
-    }
-  }
-
-  return [...tagSet].sort((a, b) => a.localeCompare(b))
-}
-
-export function serializeBookmarkItem(doc: {
-  _id: { toString(): string }
-  title: string
-  url: string
-  tags?: string[]
-  note?: string
-  is_archived: boolean
-  userId: string
-  createdAt: Date
-  updatedAt?: Date
-}) {
-  return {
-    _id: doc._id.toString(),
+    id: doc.id,
     title: doc.title,
     url: doc.url,
-    ...(doc.tags !== undefined ? { tags: doc.tags } : {}),
-    ...(doc.note !== undefined ? { note: doc.note } : {}),
-    is_archived: doc.is_archived,
+    ...(doc.tags !== null && doc.tags !== undefined && doc.tags.length > 0 ? { tags: doc.tags } : {}),
+    ...(doc.note !== null && doc.note !== undefined && doc.note !== '' ? { note: doc.note } : {}),
+    is_archived: doc.isArchived,
     userId: doc.userId,
-    createdAt: doc.createdAt.toISOString(),
-    updatedAt: (doc.updatedAt ?? doc.createdAt).toISOString(),
+    createdAt: doc.createdAt,
+    updatedAt: doc.updatedAt,
   }
 }
 
