@@ -131,7 +131,7 @@ export function BookmarkEditDrawer({
           </p>
         ) : null}
 
-        <div className="mt-auto flex justify-end gap-2 border-t border-gray-300 pt-4">
+        <div className="mt-auto flex justify-end gap-2 border-gray-300 pt-4">
           <button
             type="button"
             className="bg-gray-100 px-3 py-2 text-sm"

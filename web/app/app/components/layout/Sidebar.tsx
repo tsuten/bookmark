@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { Link, useLocation, useParams, useRevalidator } from "react-router";
 import { Archive, Bookmark, List, Search, Tag } from "lucide-react";
 import type { ReactNode } from "react";
@@ -37,56 +37,63 @@ function SidebarLogo() {
   );
 }
 
-function SidebarNav({
+const SidebarFixedNav = memo(function SidebarFixedNav({
   pathname,
-  routeTag,
-  bookmarkTags,
 }: {
   pathname: string;
-  routeTag: string | undefined;
-  bookmarkTags: string[];
 }) {
   return (
-    <nav className="min-h-0 flex-1 overflow-y-auto">
-      <ul className="min-w-0">
-        <SidebarItem
-          to="/"
-          label="All Bookmarks"
-          icon={<Bookmark className="h-4 w-4" />}
-          isActive={pathname === "/"}
+    <>
+      <SidebarItem
+        to="/"
+        label="All Bookmarks"
+        icon={<Bookmark className="h-4 w-4" />}
+        isActive={pathname === "/"}
+      />
+      <SidebarItem
+        to="/uncategorized"
+        label="Uncategorized"
+        icon={<List className="h-4 w-4" />}
+        isActive={pathname === "/uncategorized"}
+      />
+      <SidebarItem
+        to="/archived"
+        label="Archived"
+        icon={<Archive className="h-4 w-4" />}
+        isActive={pathname === "/archived"}
+      />
+      <hr />
+      <div className="flex w-full min-w-0 flex-row items-center gap-2">
+        <InputWithIcon
+          icon={<Search className="h-4 w-4" />}
+          placeholder="search tags"
         />
-        <SidebarItem
-          to="/uncategorized"
-          label="Uncategorized"
-          icon={<List className="h-4 w-4" />}
-          isActive={pathname === "/uncategorized"}
-        />
-        <SidebarItem
-          to="/archived"
-          label="Archived"
-          icon={<Archive className="h-4 w-4" />}
-          isActive={pathname === "/archived"}
-        />
-        <hr />
-        <div className="flex w-full min-w-0 flex-row items-center gap-2">
-          <InputWithIcon
-            icon={<Search className="h-4 w-4" />}
-            placeholder="search tags"
-          />
-        </div>
-        {bookmarkTags.map((tag) => (
-          <SidebarItem
-            key={tag}
-            to={`/${encodeURIComponent(tag)}`}
-            label={tag}
-            icon={<Tag className="h-4 w-4" />}
-            isActive={routeTag === tag}
-          />
-        ))}
-      </ul>
-    </nav>
+      </div>
+    </>
   );
-}
+});
+
+const SidebarTagList = memo(function SidebarTagList({
+  bookmarkTags,
+  routeTag,
+}: {
+  bookmarkTags: string[];
+  routeTag: string | undefined;
+}) {
+  return (
+    <>
+      {bookmarkTags.map((tag) => (
+        <SidebarItem
+          key={tag}
+          to={`/${encodeURIComponent(tag)}`}
+          label={tag}
+          icon={<Tag className="h-4 w-4" />}
+          isActive={routeTag === tag}
+        />
+      ))}
+    </>
+  );
+});
 
 export function Sidebar() {
   const { tag: routeTag } = useParams();
@@ -94,7 +101,6 @@ export function Sidebar() {
   const { getIdToken, user } = useAuth();
   const revalidator = useRevalidator();
   const [bookmarkTags, setBookmarkTags] = useState<string[]>([]);
-  const [tagsLoading, setTagsLoading] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -105,7 +111,6 @@ export function Sidebar() {
     let cancelled = false;
 
     async function loadTags() {
-      setTagsLoading(true);
       try {
         const token = await getIdToken();
         if (!token || cancelled) {
@@ -117,10 +122,6 @@ export function Sidebar() {
         }
       } catch (error) {
         console.error("[sidebar] failed to load tags:", error);
-      } finally {
-        if (!cancelled) {
-          setTagsLoading(false);
-        }
       }
     }
 
@@ -129,24 +130,16 @@ export function Sidebar() {
     return () => {
       cancelled = true;
     };
-  }, [user, getIdToken, pathname, revalidator.state]);
-
-  if (tagsLoading && bookmarkTags.length === 0) {
-    return (
-      <div className="sidebar flex min-h-0 flex-col overflow-x-hidden">
-        <div className="flex-1 p-3 text-gray-500">Loading...</div>
-        <SidebarLogo />
-      </div>
-    );
-  }
+  }, [user, getIdToken, revalidator.state]);
 
   return (
     <div className="sidebar flex min-h-0 flex-col overflow-x-hidden">
-      <SidebarNav
-        pathname={pathname}
-        routeTag={routeTag}
-        bookmarkTags={bookmarkTags}
-      />
+      <nav className="min-h-0 flex-1 overflow-y-auto">
+        <ul className="min-w-0">
+          <SidebarFixedNav pathname={pathname} />
+          <SidebarTagList bookmarkTags={bookmarkTags} routeTag={routeTag} />
+        </ul>
+      </nav>
       <SidebarLogo />
     </div>
   );

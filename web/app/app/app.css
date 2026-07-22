@@ -132,7 +132,7 @@ header {
   .bookmark-list-group.is-animating > [data-separator] {
     transition:
       flex 320ms ease-out,
-      opacity 200ms ease;
+      opacity 320ms ease-out;
   }
 
   .bookmark-edit-panel-container {

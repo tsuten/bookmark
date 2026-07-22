@@ -94,10 +94,14 @@ export function BookmarkList({
   }, []);
 
   useEffect(() => {
+    if (closeTimerRef.current) {
+      window.clearTimeout(closeTimerRef.current);
+      closeTimerRef.current = null;
+    }
     setIsEditPanelOpen(false);
+    setIsPanelAnimating(false);
     setActiveBookmark(null);
-    scheduleLayout(groupRef, CLOSED_LAYOUT);
-  }, [title, groupRef]);
+  }, [title]);
 
   const handleOpenEdit = useCallback(
     (bookmark: BookmarkItem) => {
@@ -146,13 +150,14 @@ export function BookmarkList({
     }
   };
 
+  const isEditPanelVisible = isEditPanelOpen || isPanelAnimating;
+
   return (
     <Group
       id="bookmark-list-group"
       groupRef={groupRef}
       className={`bookmark-list-group h-full min-h-0${isPanelAnimating ? " is-animating" : ""}`}
       orientation="horizontal"
-      defaultLayout={CLOSED_LAYOUT}
       onLayoutChanged={(layout) => {
         if (!isEditPanelOpen) {
           return;
@@ -196,30 +201,28 @@ export function BookmarkList({
         </div>
       </Panel>
 
-      {isEditPanelOpen ? (
-        <Separator
-          id="bookmark-edit-separator"
-          className="bookmark-edit-separator"
-        />
-      ) : null}
-
-      <Panel
-        id={PANEL_EDIT}
-        className="bookmark-edit-panel-container"
-        collapsible
-        collapsedSize={0}
-        defaultSize={0}
-        minSize={isEditPanelOpen ? 240 : 0}
-        maxSize={480}
-      >
-        {activeBookmark ? (
-          <BookmarkEditDrawer
-            bookmarkItem={activeBookmark}
-            onClose={handleCloseEdit}
-            onSaved={onMutate}
+      {isEditPanelVisible ? (
+        <>
+          <Separator
+            id="bookmark-edit-separator"
+            className="bookmark-edit-separator"
           />
-        ) : null}
-      </Panel>
+          <Panel
+            id={PANEL_EDIT}
+            className="bookmark-edit-panel-container"
+            minSize={isEditPanelOpen ? 240 : 0}
+            maxSize={480}
+          >
+            {activeBookmark ? (
+              <BookmarkEditDrawer
+                bookmarkItem={activeBookmark}
+                onClose={handleCloseEdit}
+                onSaved={onMutate}
+              />
+            ) : null}
+          </Panel>
+        </>
+      ) : null}
     </Group>
   );
 }

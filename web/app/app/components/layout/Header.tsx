@@ -85,7 +85,7 @@ function InsertBookmarkForm() {
 
 export function Header() {
   return (
-    <header>
+    <header className="border-b border-gray-300">
       <form onSubmit={(event) => event.preventDefault()}>
         <InputWithIcon icon={<Search className="h-4 w-4" />} placeholder="search" />
       </form>
