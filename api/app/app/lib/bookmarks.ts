@@ -111,6 +111,7 @@ export async function updateBookmark(
     title?: string
     url?: string
     tags?: string[]
+    note?: string | null
   },
 ): Promise<boolean> {
   const drizzle = getDb(db)
@@ -118,6 +119,7 @@ export async function updateBookmark(
     title?: string
     url?: string
     tags?: string[] | null
+    note?: string | null
     updatedAt: string
   } = {
     updatedAt: new Date().toISOString(),
@@ -131,6 +133,9 @@ export async function updateBookmark(
   }
   if (input.tags !== undefined) {
     updates.tags = input.tags
+  }
+  if (input.note !== undefined) {
+    updates.note = input.note
   }
 
   const result = await drizzle
@@ -147,6 +152,19 @@ export async function archiveBookmark(db: D1Database, userId: string, id: string
     .update(bookmarks)
     .set({
       isArchived: true,
+      updatedAt: new Date().toISOString(),
+    })
+    .where(and(eq(bookmarks.id, id), eq(bookmarks.userId, userId)))
+
+  return (result.meta?.changes ?? 0) > 0
+}
+
+export async function restoreBookmark(db: D1Database, userId: string, id: string): Promise<boolean> {
+  const drizzle = getDb(db)
+  const result = await drizzle
+    .update(bookmarks)
+    .set({
+      isArchived: false,
       updatedAt: new Date().toISOString(),
     })
     .where(and(eq(bookmarks.id, id), eq(bookmarks.userId, userId)))

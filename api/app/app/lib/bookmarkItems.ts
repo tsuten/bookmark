@@ -39,6 +39,7 @@ type BookmarkItemUpdateInput = {
   title?: unknown
   url?: unknown
   tags?: unknown
+  note?: unknown
 }
 
 const UUID_RE =
@@ -140,6 +141,7 @@ export function cleanBookmarkItemUpdate(doc: BookmarkItemUpdateInput = {}) {
     title?: string
     url?: string
     tags?: string[]
+    note?: string | null
   } = {}
 
   if (doc.title !== undefined) {
@@ -150,6 +152,10 @@ export function cleanBookmarkItemUpdate(doc: BookmarkItemUpdateInput = {}) {
   }
   if (doc.tags !== undefined) {
     cleaned.tags = normalizeTags(doc.tags)
+  }
+  if (doc.note !== undefined) {
+    const trimmed = trimString(doc.note)
+    cleaned.note = trimmed === undefined || trimmed === '' ? null : trimmed
   }
 
   return cleaned

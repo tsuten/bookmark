@@ -43,6 +43,11 @@ export function BookmarkItemRow({
                 {formatCreatedAtLabel(bookmarkItem.createdAt)}
               </span>
             </div>
+            {bookmarkItem.note ? (
+              <span className="line-clamp-1 text-sm text-gray-500">
+                {bookmarkItem.note}
+              </span>
+            ) : null}
           </div>
         </a>
         <div className="hidden shrink-0 items-center gap-2 group-hover:flex">

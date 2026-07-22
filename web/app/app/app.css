@@ -63,6 +63,14 @@ header {
     @apply outline-1 outline-gray-500;
   }
 
+  textarea {
+    @apply min-w-0 max-w-full rounded-sm bg-gray-100 p-1 text-sm;
+  }
+
+  textarea:focus {
+    @apply outline-1 outline-gray-500;
+  }
+
   hr {
     @apply border-gray-300;
   }

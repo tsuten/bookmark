@@ -24,6 +24,7 @@ export function BookmarkEditDrawer({
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
   const [tags, setTags] = useState<string[]>([]);
+  const [note, setNote] = useState("");
   const [urlError, setUrlError] = useState("");
   const [submitError, setSubmitError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -32,6 +33,7 @@ export function BookmarkEditDrawer({
     setTitle(bookmarkItem.title || "");
     setUrl(bookmarkItem.url || "");
     setTags(bookmarkItem.tags ?? []);
+    setNote(bookmarkItem.note ?? "");
     setUrlError("");
     setSubmitError("");
     setSubmitting(false);
@@ -62,6 +64,7 @@ export function BookmarkEditDrawer({
         title,
         url: url.trim(),
         tags,
+        note: note.trim(),
       });
       onSaved();
       onClose();
@@ -123,6 +126,16 @@ export function BookmarkEditDrawer({
         <label className="flex flex-col gap-1 text-sm text-gray-700">
           Tags
           <TagsInput value={tags} onChange={setTags} />
+        </label>
+
+        <label className="flex flex-col gap-1 text-sm text-gray-700">
+          Note
+          <textarea
+            value={note}
+            onChange={(event) => setNote(event.target.value)}
+            placeholder="Add a note..."
+            rows={4}
+          />
         </label>
 
         {submitError ? (

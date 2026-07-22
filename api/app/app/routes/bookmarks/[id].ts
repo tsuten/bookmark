@@ -6,13 +6,14 @@ import { handleBookmarkRoute } from '../../lib/routeHelpers'
 
 export const PATCH = createRoute(async (c) => {
   return handleBookmarkRoute(c, async (userId, body) => {
-    const { title, url, tags } = body as {
+    const { title, url, tags, note } = body as {
       title?: unknown
       url?: unknown
       tags?: unknown
+      note?: unknown
     }
     const id = parseUuid(c.req.param('id'))
-    const cleaned = cleanBookmarkItemUpdate({ title, url, tags })
+    const cleaned = cleanBookmarkItemUpdate({ title, url, tags, note })
     const updated = await updateBookmark(c.env.DB, userId, id, cleaned)
     if (!updated) {
       throw new ApiError('not-found', 'Bookmark not found.', 404)

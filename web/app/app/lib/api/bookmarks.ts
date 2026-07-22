@@ -76,7 +76,7 @@ export async function createBookmark(
 export async function updateBookmark(
   token: string,
   id: string,
-  input: { title: string; url: string; tags: string[] },
+  input: { title: string; url: string; tags: string[]; note?: string },
 ): Promise<void> {
   await apiFetch<{ ok: true }>(`/bookmarks/${id}`, {
     token,
@@ -85,6 +85,7 @@ export async function updateBookmark(
       title: input.title,
       url: input.url.trim(),
       tags: input.tags,
+      note: input.note ?? "",
     },
   });
 }
