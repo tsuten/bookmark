@@ -8,6 +8,7 @@ type BookmarkListItemsProps = {
   error?: string | null;
   onEdit: (bookmark: BookmarkItem) => void;
   onArchive: (bookmark: BookmarkItem) => void;
+  onRestore: (bookmark: BookmarkItem) => void;
 };
 
 export function BookmarkListItems({
@@ -16,6 +17,7 @@ export function BookmarkListItems({
   error = null,
   onEdit,
   onArchive,
+  onRestore,
 }: BookmarkListItemsProps) {
   if (error) {
     return (
@@ -43,6 +45,7 @@ export function BookmarkListItems({
             bookmarkItem={bookmarkItem}
             onEdit={onEdit}
             onArchive={onArchive}
+            onRestore={onRestore}
           />
           <hr />
         </Fragment>

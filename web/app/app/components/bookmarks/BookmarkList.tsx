@@ -14,8 +14,9 @@ import {
   type SortMode,
 } from "~/components/bookmarks/bookmarkListConstants";
 import type { BookmarkItem } from "~/lib/api/types";
-import { archiveBookmark } from "~/lib/api/bookmarks";
+import { archiveBookmark, restoreBookmark } from "~/lib/api/bookmarks";
 import { getAuthToken } from "~/lib/api/loaders";
+import { BugIcon } from "lucide-react";
 
 const STORAGE_KEY = "bookmarkEditPanelWidth";
 const PANEL_LIST = "list";
@@ -150,6 +151,16 @@ export function BookmarkList({
     }
   };
 
+  const handleRestore = async (bookmark: BookmarkItem) => {
+    try {
+      const token = await getAuthToken();
+      await restoreBookmark(token, bookmark.id);
+      onMutate();
+    } catch (restoreError) {
+      console.error("[bookmark] restore failed:", restoreError);
+    }
+  };
+
   const isEditPanelVisible = isEditPanelOpen || isPanelAnimating;
 
   return (
@@ -190,12 +201,14 @@ export function BookmarkList({
             error={error}
             onEdit={handleOpenEdit}
             onArchive={handleArchive}
+            onRestore={handleRestore}
           />
           <button
             type="button"
             data-tally-open="Y5vDN0"
-            className="absolute bottom-4 right-4 z-10 rounded-full bg-blue-500 px-4 py-2 text-white"
+            className="absolute bottom-4 right-4 z-10 flex items-center gap-2 rounded-full bg-brand px-4 py-2 text-white"
           >
+            <BugIcon className="size-4" />
             Found a bug?
           </button>
         </div>

@@ -1,4 +1,4 @@
-import { Archive, Pencil } from "lucide-react";
+import { Archive, ArchiveRestore, Pencil } from "lucide-react";
 import type { BookmarkItem } from "~/lib/api/types";
 
 function formatCreatedAtLabel(createdAt: string) {
@@ -21,12 +21,14 @@ type BookmarkItemRowProps = {
   bookmarkItem: BookmarkItem;
   onEdit: (bookmark: BookmarkItem) => void;
   onArchive: (bookmark: BookmarkItem) => void;
+  onRestore: (bookmark: BookmarkItem) => void;
 };
 
 export function BookmarkItemRow({
   bookmarkItem,
   onEdit,
   onArchive,
+  onRestore,
 }: BookmarkItemRowProps) {
   return (
     <li>
@@ -58,7 +60,16 @@ export function BookmarkItemRow({
           >
             <Pencil className="h-4 w-4" />
           </button>
-          {!bookmarkItem.is_archived ? (
+          {bookmarkItem.is_archived ? (
+            <button
+              type="button"
+              className="rounded-sm p-2 text-gray-600 hover:bg-gray-200"
+              aria-label="Restore"
+              onClick={() => onRestore(bookmarkItem)}
+            >
+              <ArchiveRestore className="h-4 w-4" />
+            </button>
+          ) : (
             <button
               type="button"
               className="rounded-sm p-2 text-gray-600 hover:bg-gray-200"
@@ -67,7 +78,7 @@ export function BookmarkItemRow({
             >
               <Archive className="h-4 w-4" />
             </button>
-          ) : null}
+          )}
         </div>
       </div>
     </li>

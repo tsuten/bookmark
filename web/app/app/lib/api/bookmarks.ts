@@ -100,3 +100,14 @@ export async function archiveBookmark(
     body: {},
   });
 }
+
+export async function restoreBookmark(
+  token: string,
+  id: string,
+): Promise<void> {
+  await apiFetch<{ ok: true }>(`/bookmarks/${id}/restore`, {
+    token,
+    method: "PATCH",
+    body: {},
+  });
+}
