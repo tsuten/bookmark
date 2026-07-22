@@ -28,6 +28,66 @@ function SidebarItem({ to, label, icon, isActive }: SidebarItemProps) {
   );
 }
 
+function SidebarLogo() {
+  return (
+    <footer className="sidebar-logo gap-2">
+      {/* <img src="/favicon.ico" alt="" className="sidebar-logo-image" /> */}
+      <span className="sidebar-logo-text">leafee bookmark manager</span>
+    </footer>
+  );
+}
+
+function SidebarNav({
+  pathname,
+  routeTag,
+  bookmarkTags,
+}: {
+  pathname: string;
+  routeTag: string | undefined;
+  bookmarkTags: string[];
+}) {
+  return (
+    <nav className="min-h-0 flex-1 overflow-y-auto">
+      <ul className="min-w-0">
+        <SidebarItem
+          to="/"
+          label="All Bookmarks"
+          icon={<Bookmark className="h-4 w-4" />}
+          isActive={pathname === "/"}
+        />
+        <SidebarItem
+          to="/uncategorized"
+          label="Uncategorized"
+          icon={<List className="h-4 w-4" />}
+          isActive={pathname === "/uncategorized"}
+        />
+        <SidebarItem
+          to="/archived"
+          label="Archived"
+          icon={<Archive className="h-4 w-4" />}
+          isActive={pathname === "/archived"}
+        />
+        <hr />
+        <div className="flex w-full min-w-0 flex-row items-center gap-2">
+          <InputWithIcon
+            icon={<Search className="h-4 w-4" />}
+            placeholder="search tags"
+          />
+        </div>
+        {bookmarkTags.map((tag) => (
+          <SidebarItem
+            key={tag}
+            to={`/${encodeURIComponent(tag)}`}
+            label={tag}
+            icon={<Tag className="h-4 w-4" />}
+            isActive={routeTag === tag}
+          />
+        ))}
+      </ul>
+    </nav>
+  );
+}
+
 export function Sidebar() {
   const { tag: routeTag } = useParams();
   const { pathname } = useLocation();
@@ -72,47 +132,22 @@ export function Sidebar() {
   }, [user, getIdToken, pathname, revalidator.state]);
 
   if (tagsLoading && bookmarkTags.length === 0) {
-    return <div className="sidebar p-3 text-gray-500">Loading...</div>;
+    return (
+      <div className="sidebar flex min-h-0 flex-col overflow-x-hidden">
+        <div className="flex-1 p-3 text-gray-500">Loading...</div>
+        <SidebarLogo />
+      </div>
+    );
   }
 
   return (
-    <div className="sidebar min-w-0 overflow-x-hidden">
-      <ul className="min-w-0">
-        <SidebarItem
-          to="/"
-          label="All Bookmarks"
-          icon={<Bookmark className="h-4 w-4" />}
-          isActive={pathname === "/"}
-        />
-        <SidebarItem
-          to="/uncategorized"
-          label="Uncategorized"
-          icon={<List className="h-4 w-4" />}
-          isActive={pathname === "/uncategorized"}
-        />
-        <SidebarItem
-          to="/archived"
-          label="Archived"
-          icon={<Archive className="h-4 w-4" />}
-          isActive={pathname === "/archived"}
-        />
-        <hr />
-        <div className="flex w-full min-w-0 flex-row items-center gap-2">
-          <InputWithIcon
-            icon={<Search className="h-4 w-4" />}
-            placeholder="search tags"
-          />
-        </div>
-        {bookmarkTags.map((tag) => (
-          <SidebarItem
-            key={tag}
-            to={`/${encodeURIComponent(tag)}`}
-            label={tag}
-            icon={<Tag className="h-4 w-4" />}
-            isActive={routeTag === tag}
-          />
-        ))}
-      </ul>
+    <div className="sidebar flex min-h-0 flex-col overflow-x-hidden">
+      <SidebarNav
+        pathname={pathname}
+        routeTag={routeTag}
+        bookmarkTags={bookmarkTags}
+      />
+      <SidebarLogo />
     </div>
   );
 }
