@@ -78,7 +78,7 @@ header {
   }
 
   button {
-    @apply cursor-pointer rounded-sm;
+    @apply cursor-pointer rounded-full;
   }
 
   button:focus {
