@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRevalidator } from "react-router";
-import { Plus, Search } from "lucide-react";
-import { InputWithIcon } from "~/components/molecules/InputWithIcon";
+import { Plus } from "lucide-react";
+import { SearchCommandDialog } from "~/components/layout/SearchCommandDialog";
 import { UserMenu } from "~/components/layout/UserMenu";
 import {
   bookmarkUrlErrorMessage,
@@ -69,7 +69,7 @@ function InsertBookmarkForm() {
           type="button"
           onClick={addBookmarkItem}
           disabled={submitting}
-          className="rounded-l-none bg-blue-500 p-2 text-white disabled:opacity-50"
+          className="rounded-l-none bg-brand p-2 text-white disabled:opacity-50"
         >
           <Plus className="h-4 w-4" />
         </button>
@@ -86,9 +86,7 @@ function InsertBookmarkForm() {
 export function Header() {
   return (
     <header className="border-b border-gray-300">
-      <form onSubmit={(event) => event.preventDefault()}>
-        <InputWithIcon icon={<Search className="h-4 w-4" />} placeholder="search" />
-      </form>
+      <SearchCommandDialog />
       <div className="flex flex-row items-center gap-2">
         <InsertBookmarkForm />
         <UserMenu />
