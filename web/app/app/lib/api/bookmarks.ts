@@ -90,6 +90,18 @@ export async function updateBookmark(
   });
 }
 
+export async function updateBookmarkTitle(
+  token: string,
+  id: string,
+  title: string,
+): Promise<void> {
+  await apiFetch<{ ok: true }>(`/bookmarks/${id}`, {
+    token,
+    method: "PATCH",
+    body: { title },
+  });
+}
+
 export async function archiveBookmark(
   token: string,
   id: string,

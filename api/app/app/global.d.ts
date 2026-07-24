@@ -6,6 +6,7 @@ declare module 'hono' {
     Bindings: {
       DB: D1Database
       FIREBASE_PROJECT_ID: string
+      BROWSER: BrowserRun
     }
   }
 }

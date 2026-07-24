@@ -13,5 +13,9 @@
       "database_id": "3078ed61-6b23-47d8-8dac-78b6c725d263",
       "migrations_dir": "migrations"
     }
-  ]
+  ],
+  "browser": {
+    "binding": "BROWSER",
+    "remote": true
+  }
 }

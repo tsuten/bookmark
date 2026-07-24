@@ -202,6 +202,7 @@ export function BookmarkList({
             onEdit={handleOpenEdit}
             onArchive={handleArchive}
             onRestore={handleRestore}
+            onMutate={onMutate}
           />
           <button
             type="button"

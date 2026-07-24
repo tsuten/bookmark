@@ -1,5 +1,16 @@
-import { Archive, ArchiveRestore, Pencil } from "lucide-react";
+import { useState } from "react";
+import {
+  Archive,
+  ArchiveRestore,
+  Loader2,
+  Pencil,
+  RefreshCw,
+} from "lucide-react";
 import type { BookmarkItem } from "~/lib/api/types";
+import { updateBookmarkTitle } from "~/lib/api/bookmarks";
+import { fetchPageTitle } from "~/lib/api/getTitle";
+import { getAuthToken } from "~/lib/api/loaders";
+import { ApiError } from "~/lib/api/client";
 
 function formatCreatedAtLabel(createdAt: string) {
   const d = new Date(createdAt);
@@ -30,6 +41,7 @@ type BookmarkItemRowProps = {
   onEdit: (bookmark: BookmarkItem) => void;
   onArchive: (bookmark: BookmarkItem) => void;
   onRestore: (bookmark: BookmarkItem) => void;
+  onMutate: () => void;
 };
 
 export function BookmarkItemRow({
@@ -37,10 +49,33 @@ export function BookmarkItemRow({
   onEdit,
   onArchive,
   onRestore,
+  onMutate,
 }: BookmarkItemRowProps) {
+  const [updatingTitle, setUpdatingTitle] = useState(false);
   const tagsLabel =
     (bookmarkItem.tags ?? []).join(", ") || "No tags";
   const urlDomain = formatUrlDomain(bookmarkItem.url);
+
+  const handleUpdateTitle = async () => {
+    setUpdatingTitle(true);
+    try {
+      const token = await getAuthToken();
+      const title = await fetchPageTitle(token, bookmarkItem.url);
+      if (!title) {
+        console.error("[bookmark] title not found:", bookmarkItem.url);
+        return;
+      }
+      await updateBookmarkTitle(token, bookmarkItem.id, title);
+      onMutate();
+    } catch (error) {
+      console.error(
+        "[bookmark] update title failed:",
+        error instanceof ApiError ? error.message : error,
+      );
+    } finally {
+      setUpdatingTitle(false);
+    }
+  };
 
   return (
     <li>
@@ -86,6 +121,20 @@ export function BookmarkItemRow({
           <button
             type="button"
             className="p-2 text-gray-600 hover:bg-gray-200"
+            aria-label="タイトルを更新"
+            disabled={updatingTitle}
+            onClick={() => void handleUpdateTitle()}
+          >
+            {updatingTitle ? (
+              <Loader2 aria-hidden className="h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw aria-hidden className="h-4 w-4" />
+            )}
+          </button>
+          <button
+            type="button"
+            className="p-2 text-gray-600 hover:bg-gray-200"
+            aria-label="Edit"
             onClick={() => onEdit(bookmarkItem)}
           >
             <Pencil className="h-4 w-4" />

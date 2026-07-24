@@ -9,6 +9,7 @@ type BookmarkListItemsProps = {
   onEdit: (bookmark: BookmarkItem) => void;
   onArchive: (bookmark: BookmarkItem) => void;
   onRestore: (bookmark: BookmarkItem) => void;
+  onMutate: () => void;
 };
 
 export function BookmarkListItems({
@@ -18,6 +19,7 @@ export function BookmarkListItems({
   onEdit,
   onArchive,
   onRestore,
+  onMutate,
 }: BookmarkListItemsProps) {
   if (error) {
     return (
@@ -46,6 +48,7 @@ export function BookmarkListItems({
             onEdit={onEdit}
             onArchive={onArchive}
             onRestore={onRestore}
+            onMutate={onMutate}
           />
           <hr />
         </Fragment>
