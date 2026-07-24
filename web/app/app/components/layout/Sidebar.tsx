@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { InputWithIcon } from "~/components/molecules/InputWithIcon";
 import { fetchBookmarkTags } from "~/lib/api/bookmarks";
 import { useAuth } from "~/lib/auth/auth-context";
+import logo from "~/assets/logo.svg";
 
 type SidebarItemProps = {
   to: string;
@@ -31,8 +32,8 @@ function SidebarItem({ to, label, icon, isActive }: SidebarItemProps) {
 function SidebarLogo() {
   return (
     <footer className="sidebar-logo gap-2">
-      {/* <img src="/favicon.ico" alt="" className="sidebar-logo-image" /> */}
-      <span className="sidebar-logo-text">leafee bookmark manager</span>
+      <img src={logo} alt="" className="sidebar-logo-image" />
+      <span className="sidebar-logo-text">leafee</span>
     </footer>
   );
 }

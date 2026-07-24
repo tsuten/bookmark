@@ -18,7 +18,7 @@ export function BookmarkListToolbar({
 }: BookmarkListToolbarProps) {
   return (
     <div className="shrink-0">
-      <div className="flex flex-row items-center justify-between gap-2">
+      <div className="flex flex-row items-center justify-between gap-2 mr-2 ml-1">
         <div className="m-2 flex flex-row items-center gap-2">
           <Bookmark className="h-4 w-4" />
           <h2>{title}</h2>

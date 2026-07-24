@@ -29,7 +29,7 @@ export function Dropdown({ options, value, onValueChange }: DropdownProps) {
         <DropdownMenu.Content sideOffset={4}>
           <DropdownMenu.RadioGroup value={value} onValueChange={onValueChange}>
             {options.map(({ value: optionValue, label: optionLabel, Icon: OptionIcon }) => (
-              <DropdownMenu.RadioItem key={optionValue} value={optionValue}>
+              <DropdownMenu.RadioItem key={optionValue} value={optionValue} className="hover:cursor-pointer">
                 <OptionIcon aria-hidden className="h-4 w-4" />
                 {optionLabel}
               </DropdownMenu.RadioItem>

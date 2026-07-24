@@ -3,6 +3,8 @@
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  --color-brand: #78876F;
 }
 
 html,
@@ -60,7 +62,7 @@ header {
   }
 
   input:focus {
-    @apply outline-1 outline-gray-500;
+    @apply outline-2 outline-brand;
   }
 
   textarea {
@@ -68,7 +70,7 @@ header {
   }
 
   textarea:focus {
-    @apply outline-1 outline-gray-500;
+    @apply outline-2 outline-brand;
   }
 
   hr {
@@ -88,7 +90,7 @@ header {
   }
 
   button[type="button"][aria-haspopup="menu"][data-state="open"] {
-    @apply outline-1 outline-gray-500;
+    @apply outline-2 outline-brand;
   }
 
   button[type="button"][aria-haspopup="menu"] svg {
@@ -121,7 +123,9 @@ header {
   }
 
   .sidebar-logo-image {
-    @apply h-8 w-auto max-w-full object-contain opacity-70;
+    @apply h-8 w-auto max-w-full object-contain opacity-70; 
+    transform: scaleX(-1);
+    rotate: -30deg;
   }
 
   .bookmark-list-group {
@@ -169,7 +173,7 @@ header {
   }
 
   .tags-input {
-    @apply flex min-h-8 flex-wrap items-center gap-1 rounded-sm border border-gray-300 bg-gray-100 p-1;
+    @apply flex min-h-8 flex-wrap items-center gap-1 rounded-sm bg-gray-100 p-1;
   }
 
   .tag-chip {
@@ -182,5 +186,53 @@ header {
 
   .tags-input-field {
     @apply min-w-24 flex-1 border-0 bg-transparent p-1 text-sm outline-none;
+  }
+
+  .tags-input-field:focus {
+    @apply outline-2 outline-brand;
+  }
+
+  .search-command-trigger {
+    @apply flex min-w-0 items-center gap-2 rounded-sm bg-gray-100 px-3 py-1.5 text-sm;
+  }
+
+  .search-command-trigger[data-state="open"] {
+    @apply outline-2 outline-brand;
+  }
+
+  .search-command-shortcut {
+    @apply hidden rounded border-gray-300 bg-white px-1.5 py-0.5 text-xs text-gray-500 sm:inline;
+  }
+
+  .command-dialog-overlay {
+    @apply fixed inset-0 z-50 bg-black/40;
+  }
+
+  .command-dialog-content {
+    @apply fixed top-[20%] left-1/2 z-50 w-[min(100%-2rem,32rem)] -translate-x-1/2 overflow-hidden rounded-lg border border-gray-300 bg-white shadow-xl;
+  }
+
+  .command-dialog-input-row {
+    @apply flex items-center gap-3 border-b border-gray-300 px-4 py-3;
+  }
+
+  .command-dialog-input {
+    @apply w-full border-0 bg-transparent p-0 text-base outline-none;
+  }
+
+  .command-dialog-results {
+    @apply max-h-80 overflow-y-auto;
+  }
+
+  .command-dialog-empty {
+    @apply px-4 py-6 text-sm text-gray-500;
+  }
+
+  .command-dialog-result-list {
+    @apply py-1;
+  }
+
+  .command-dialog-result-item {
+    @apply flex w-full flex-col gap-0.5 px-4 py-2 text-left hover:bg-gray-100;
   }
 }

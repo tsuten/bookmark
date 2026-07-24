@@ -155,7 +155,7 @@ export function BookmarkEditDrawer({
           </button>
           <button
             type="submit"
-            className="bg-blue-500 px-3 py-2 text-sm text-white disabled:opacity-50"
+            className="bg-brand px-3 py-2 text-sm text-white disabled:opacity-50"
             disabled={submitting}
           >
             {submitting ? "Saving..." : "Save"}
