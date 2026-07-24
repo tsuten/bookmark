@@ -26,6 +26,11 @@ export function TagsInput({ value = [], onChange }: TagsInputProps) {
     setInput("");
   };
 
+  const handleBlur = () => {
+    addTag(input);
+    setInput("");
+  };
+
   const removeTag = (tagToRemove: string) => {
     onChange(value.filter((tag) => tag !== tagToRemove));
   };
@@ -51,6 +56,7 @@ export function TagsInput({ value = [], onChange }: TagsInputProps) {
         value={input}
         onChange={(event) => setInput(event.target.value)}
         onKeyDown={handleKeyDown}
+        onBlur={handleBlur}
         placeholder="Add tag and press Enter"
       />
     </div>

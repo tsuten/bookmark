@@ -176,6 +176,10 @@ header {
     @apply flex min-h-8 flex-wrap items-center gap-1 rounded-sm bg-gray-100 p-1;
   }
 
+  .tags-input:focus-within {
+    @apply outline-2 outline-brand;
+  }
+
   .tag-chip {
     @apply inline-flex items-center gap-1 rounded-sm bg-gray-200 px-2 py-0.5 text-sm text-gray-700;
   }
@@ -186,10 +190,6 @@ header {
 
   .tags-input-field {
     @apply min-w-24 flex-1 border-0 bg-transparent p-1 text-sm outline-none;
-  }
-
-  .tags-input-field:focus {
-    @apply outline-2 outline-brand;
   }
 
   .search-command-trigger {

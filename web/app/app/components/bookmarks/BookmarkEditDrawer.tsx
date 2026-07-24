@@ -37,7 +37,7 @@ export function BookmarkEditDrawer({
     setUrlError("");
     setSubmitError("");
     setSubmitting(false);
-  }, [bookmarkItem.id, bookmarkItem]);
+  }, [bookmarkItem.id]);
 
   const handleUrlChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setUrl(event.target.value);
