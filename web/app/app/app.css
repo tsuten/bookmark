@@ -156,13 +156,13 @@ header {
   }
 
   .bookmark-edit-separator {
-    @apply w-1 shrink-0 bg-gray-300;
+    @apply w-px shrink-0 bg-gray-300;
   }
 
-  .bookmark-edit-separator:hover,
+  /* .bookmark-edit-separator:hover,
   .bookmark-edit-separator[data-separator]:active {
     @apply bg-gray-400;
-  }
+  } */
 
   .bookmark-edit-separator[data-disabled] {
     @apply pointer-events-none w-0 opacity-0;
