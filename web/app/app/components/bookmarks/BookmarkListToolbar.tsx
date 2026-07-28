@@ -2,19 +2,25 @@ import { Bookmark } from "lucide-react";
 import { Dropdown } from "~/components/molecules/Dropdown";
 import {
   SORT_OPTIONS,
+  VIEW_OPTIONS,
   type SortMode,
+  type ViewMode,
 } from "~/components/bookmarks/bookmarkListConstants";
 
 type BookmarkListToolbarProps = {
   title: string;
   sortBy: SortMode;
+  viewMode: ViewMode;
   onSortChange: (value: SortMode) => void;
+  onViewChange: (value: ViewMode) => void;
 };
 
 export function BookmarkListToolbar({
   title,
   sortBy,
+  viewMode,
   onSortChange,
+  onViewChange,
 }: BookmarkListToolbarProps) {
   return (
     <div className="shrink-0">
@@ -24,6 +30,11 @@ export function BookmarkListToolbar({
           <h2>{title}</h2>
         </div>
         <div className="flex flex-row items-center gap-2">
+          <Dropdown
+            options={[...VIEW_OPTIONS]}
+            value={viewMode}
+            onValueChange={(value) => onViewChange(value as ViewMode)}
+          />
           <Dropdown
             options={[...SORT_OPTIONS]}
             value={sortBy}

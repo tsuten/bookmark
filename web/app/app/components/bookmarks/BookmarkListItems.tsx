@@ -1,25 +1,35 @@
-import { Fragment } from "react";
-import { BookmarkItemRow } from "~/components/bookmarks/BookmarkItem";
+import type { ComponentType } from "react";
+import type { ViewMode } from "~/components/bookmarks/bookmarkListConstants";
+import { BookmarkGridView } from "~/components/bookmarks/views/BookmarkGridView";
+import { BookmarkListView } from "~/components/bookmarks/views/BookmarkListView";
+import type {
+  BookmarkItemActions,
+  BookmarkListViewProps,
+} from "~/components/bookmarks/views/types";
 import type { BookmarkItem } from "~/lib/api/types";
+
+const VIEW_COMPONENTS: Record<
+  ViewMode,
+  ComponentType<BookmarkListViewProps>
+> = {
+  list: BookmarkListView,
+  grid: BookmarkGridView,
+};
 
 type BookmarkListItemsProps = {
   items: BookmarkItem[];
+  viewMode: ViewMode;
   isLoading?: boolean;
   error?: string | null;
-  onEdit: (bookmark: BookmarkItem) => void;
-  onArchive: (bookmark: BookmarkItem) => void;
-  onRestore: (bookmark: BookmarkItem) => void;
-  onMutate: () => void;
+  actions: BookmarkItemActions;
 };
 
 export function BookmarkListItems({
   items,
+  viewMode,
   isLoading = false,
   error = null,
-  onEdit,
-  onArchive,
-  onRestore,
-  onMutate,
+  actions,
 }: BookmarkListItemsProps) {
   if (error) {
     return (
@@ -37,25 +47,7 @@ export function BookmarkListItems({
     );
   }
 
-  return (
-    <ul
-      className={`min-h-0 flex-1 overflow-y-auto${isLoading ? " opacity-60" : ""}`}
-    >
-      {items.map((bookmarkItem) => (
-        <Fragment key={bookmarkItem.id}>
-          <BookmarkItemRow
-            bookmarkItem={bookmarkItem}
-            onEdit={onEdit}
-            onArchive={onArchive}
-            onRestore={onRestore}
-            onMutate={onMutate}
-          />
-          <hr />
-        </Fragment>
-      ))}
-      {isLoading && items.length > 0 ? (
-        <li className="p-3 text-center text-sm text-gray-500">Updating...</li>
-      ) : null}
-    </ul>
-  );
+  const View = VIEW_COMPONENTS[viewMode];
+
+  return <View items={items} isLoading={isLoading} actions={actions} />;
 }

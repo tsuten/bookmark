@@ -3,6 +3,8 @@ import {
   ArrowUpAZ,
   ClockArrowDown,
   ClockArrowUp,
+  LayoutGrid,
+  List,
 } from "lucide-react";
 import type { BookmarkItem } from "~/lib/api/types";
 
@@ -14,6 +16,13 @@ export const SORT_OPTIONS = [
 ] as const;
 
 export type SortMode = (typeof SORT_OPTIONS)[number]["value"];
+
+export const VIEW_OPTIONS = [
+  { value: "list", label: "List", Icon: List },
+  { value: "grid", label: "Grid", Icon: LayoutGrid },
+] as const;
+
+export type ViewMode = (typeof VIEW_OPTIONS)[number]["value"];
 
 function compareNullableStrings(a: string | undefined, b: string | undefined) {
   return (a || "").localeCompare(b || "");

@@ -12,18 +12,51 @@ import { BookmarkListToolbar } from "~/components/bookmarks/BookmarkListToolbar"
 import {
   compareForMode,
   type SortMode,
+  VIEW_OPTIONS,
+  type ViewMode,
 } from "~/components/bookmarks/bookmarkListConstants";
 import type { BookmarkItem } from "~/lib/api/types";
-import { archiveBookmark, restoreBookmark } from "~/lib/api/bookmarks";
+import {
+  archiveBookmark,
+  restoreBookmark,
+  updateBookmarkTitle,
+} from "~/lib/api/bookmarks";
+import { fetchPageTitle } from "~/lib/api/getTitle";
 import { getAuthToken } from "~/lib/api/loaders";
+import { ApiError } from "~/lib/api/client";
 import { BugIcon } from "lucide-react";
 
 const STORAGE_KEY = "bookmarkEditPanelWidth";
+const VIEW_MODE_STORAGE_KEY = "bookmarkListViewMode";
 const PANEL_LIST = "list";
 const PANEL_EDIT = "edit";
 const PANEL_ANIMATION_MS = 320;
 const DEFAULT_EDIT_LAYOUT = { [PANEL_LIST]: 70, [PANEL_EDIT]: 30 };
 const CLOSED_LAYOUT = { [PANEL_LIST]: 100, [PANEL_EDIT]: 0 };
+
+function readSavedViewMode(): ViewMode {
+  try {
+    if (typeof window === "undefined" || !window.localStorage) {
+      return "list";
+    }
+    const raw = localStorage.getItem(VIEW_MODE_STORAGE_KEY);
+    if (raw == null || raw === "") {
+      return "list";
+    }
+    const isValid = VIEW_OPTIONS.some((option) => option.value === raw);
+    return isValid ? (raw as ViewMode) : "list";
+  } catch {
+    return "list";
+  }
+}
+
+function saveViewMode(viewMode: ViewMode) {
+  try {
+    localStorage.setItem(VIEW_MODE_STORAGE_KEY, viewMode);
+  } catch {
+    // private mode, quota, etc.
+  }
+}
 
 function readSavedLayout() {
   try {
@@ -74,6 +107,8 @@ export function BookmarkList({
   onMutate,
 }: BookmarkListProps) {
   const [sortBy, setSortBy] = useState<SortMode>("newest");
+  const [viewMode, setViewMode] = useState<ViewMode>(readSavedViewMode);
+  const [updatingTitleId, setUpdatingTitleId] = useState<string | null>(null);
   const [activeBookmark, setActiveBookmark] = useState<BookmarkItem | null>(
     null,
   );
@@ -161,6 +196,43 @@ export function BookmarkList({
     }
   };
 
+  const handleUpdateTitle = async (bookmark: BookmarkItem) => {
+    setUpdatingTitleId(bookmark.id);
+    try {
+      const token = await getAuthToken();
+      const title = await fetchPageTitle(token, bookmark.url);
+      if (!title) {
+        console.error("[bookmark] title not found:", bookmark.url);
+        return;
+      }
+      await updateBookmarkTitle(token, bookmark.id, title);
+      onMutate();
+    } catch (error) {
+      console.error(
+        "[bookmark] update title failed:",
+        error instanceof ApiError ? error.message : error,
+      );
+    } finally {
+      setUpdatingTitleId(null);
+    }
+  };
+
+  const handleViewChange = useCallback((nextViewMode: ViewMode) => {
+    setViewMode(nextViewMode);
+    saveViewMode(nextViewMode);
+  }, []);
+
+  const bookmarkActions = useMemo(
+    () => ({
+      onEdit: handleOpenEdit,
+      onArchive: handleArchive,
+      onRestore: handleRestore,
+      onUpdateTitle: handleUpdateTitle,
+      updatingTitleId,
+    }),
+    [handleOpenEdit, updatingTitleId],
+  );
+
   const isEditPanelVisible = isEditPanelOpen || isPanelAnimating;
 
   return (
@@ -193,16 +265,16 @@ export function BookmarkList({
           <BookmarkListToolbar
             title={title}
             sortBy={sortBy}
+            viewMode={viewMode}
             onSortChange={setSortBy}
+            onViewChange={handleViewChange}
           />
           <BookmarkListItems
             items={sortedBookmarkItems}
+            viewMode={viewMode}
             isLoading={isLoading}
             error={error}
-            onEdit={handleOpenEdit}
-            onArchive={handleArchive}
-            onRestore={handleRestore}
-            onMutate={onMutate}
+            actions={bookmarkActions}
           />
           <button
             type="button"
