@@ -1,4 +1,5 @@
 import type { BookmarkItem } from "~/lib/api/types";
+import type { GridColumnMode } from "~/components/bookmarks/bookmarkListConstants";
 
 export type BookmarkItemActions = {
   onEdit: (bookmark: BookmarkItem) => void;
@@ -12,4 +13,8 @@ export type BookmarkListViewProps = {
   items: BookmarkItem[];
   isLoading?: boolean;
   actions: BookmarkItemActions;
+};
+
+export type BookmarkGridViewProps = BookmarkListViewProps & {
+  gridColumns: GridColumnMode;
 };

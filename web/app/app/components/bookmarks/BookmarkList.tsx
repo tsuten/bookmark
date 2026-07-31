@@ -11,6 +11,9 @@ import { BookmarkListItems } from "~/components/bookmarks/BookmarkListItems";
 import { BookmarkListToolbar } from "~/components/bookmarks/BookmarkListToolbar";
 import {
   compareForMode,
+  DEFAULT_GRID_COLUMN_MODE,
+  GRID_COLUMN_OPTIONS,
+  type GridColumnMode,
   type SortMode,
   VIEW_OPTIONS,
   type ViewMode,
@@ -28,6 +31,7 @@ import { BugIcon } from "lucide-react";
 
 const STORAGE_KEY = "bookmarkEditPanelWidth";
 const VIEW_MODE_STORAGE_KEY = "bookmarkListViewMode";
+const GRID_COLUMNS_STORAGE_KEY = "bookmarkGridColumns";
 const PANEL_LIST = "list";
 const PANEL_EDIT = "edit";
 const PANEL_ANIMATION_MS = 320;
@@ -53,6 +57,30 @@ function readSavedViewMode(): ViewMode {
 function saveViewMode(viewMode: ViewMode) {
   try {
     localStorage.setItem(VIEW_MODE_STORAGE_KEY, viewMode);
+  } catch {
+    // private mode, quota, etc.
+  }
+}
+
+function readSavedGridColumns(): GridColumnMode {
+  try {
+    if (typeof window === "undefined" || !window.localStorage) {
+      return DEFAULT_GRID_COLUMN_MODE;
+    }
+    const raw = localStorage.getItem(GRID_COLUMNS_STORAGE_KEY);
+    if (raw == null || raw === "") {
+      return DEFAULT_GRID_COLUMN_MODE;
+    }
+    const isValid = GRID_COLUMN_OPTIONS.some((option) => option.value === raw);
+    return isValid ? (raw as GridColumnMode) : DEFAULT_GRID_COLUMN_MODE;
+  } catch {
+    return DEFAULT_GRID_COLUMN_MODE;
+  }
+}
+
+function saveGridColumns(gridColumns: GridColumnMode) {
+  try {
+    localStorage.setItem(GRID_COLUMNS_STORAGE_KEY, gridColumns);
   } catch {
     // private mode, quota, etc.
   }
@@ -108,6 +136,9 @@ export function BookmarkList({
 }: BookmarkListProps) {
   const [sortBy, setSortBy] = useState<SortMode>("newest");
   const [viewMode, setViewMode] = useState<ViewMode>(readSavedViewMode);
+  const [gridColumns, setGridColumns] = useState<GridColumnMode>(
+    readSavedGridColumns,
+  );
   const [updatingTitleId, setUpdatingTitleId] = useState<string | null>(null);
   const [activeBookmark, setActiveBookmark] = useState<BookmarkItem | null>(
     null,
@@ -222,6 +253,11 @@ export function BookmarkList({
     saveViewMode(nextViewMode);
   }, []);
 
+  const handleGridColumnsChange = useCallback((nextGridColumns: GridColumnMode) => {
+    setGridColumns(nextGridColumns);
+    saveGridColumns(nextGridColumns);
+  }, []);
+
   const bookmarkActions = useMemo(
     () => ({
       onEdit: handleOpenEdit,
@@ -266,12 +302,15 @@ export function BookmarkList({
             title={title}
             sortBy={sortBy}
             viewMode={viewMode}
+            gridColumns={gridColumns}
             onSortChange={setSortBy}
             onViewChange={handleViewChange}
+            onGridColumnsChange={handleGridColumnsChange}
           />
           <BookmarkListItems
             items={sortedBookmarkItems}
             viewMode={viewMode}
+            gridColumns={gridColumns}
             isLoading={isLoading}
             error={error}
             actions={bookmarkActions}

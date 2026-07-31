@@ -1,24 +1,13 @@
-import type { ComponentType } from "react";
-import type { ViewMode } from "~/components/bookmarks/bookmarkListConstants";
+import type { GridColumnMode, ViewMode } from "~/components/bookmarks/bookmarkListConstants";
 import { BookmarkGridView } from "~/components/bookmarks/views/BookmarkGridView";
 import { BookmarkListView } from "~/components/bookmarks/views/BookmarkListView";
-import type {
-  BookmarkItemActions,
-  BookmarkListViewProps,
-} from "~/components/bookmarks/views/types";
+import type { BookmarkItemActions } from "~/components/bookmarks/views/types";
 import type { BookmarkItem } from "~/lib/api/types";
-
-const VIEW_COMPONENTS: Record<
-  ViewMode,
-  ComponentType<BookmarkListViewProps>
-> = {
-  list: BookmarkListView,
-  grid: BookmarkGridView,
-};
 
 type BookmarkListItemsProps = {
   items: BookmarkItem[];
   viewMode: ViewMode;
+  gridColumns: GridColumnMode;
   isLoading?: boolean;
   error?: string | null;
   actions: BookmarkItemActions;
@@ -27,6 +16,7 @@ type BookmarkListItemsProps = {
 export function BookmarkListItems({
   items,
   viewMode,
+  gridColumns,
   isLoading = false,
   error = null,
   actions,
@@ -47,7 +37,18 @@ export function BookmarkListItems({
     );
   }
 
-  const View = VIEW_COMPONENTS[viewMode];
+  if (viewMode === "grid") {
+    return (
+      <BookmarkGridView
+        items={items}
+        isLoading={isLoading}
+        actions={actions}
+        gridColumns={gridColumns}
+      />
+    );
+  }
 
-  return <View items={items} isLoading={isLoading} actions={actions} />;
+  return (
+    <BookmarkListView items={items} isLoading={isLoading} actions={actions} />
+  );
 }

@@ -3,6 +3,9 @@ import {
   ArrowUpAZ,
   ClockArrowDown,
   ClockArrowUp,
+  Columns2,
+  Columns3,
+  Columns4,
   LayoutGrid,
   List,
 } from "lucide-react";
@@ -23,6 +26,19 @@ export const VIEW_OPTIONS = [
 ] as const;
 
 export type ViewMode = (typeof VIEW_OPTIONS)[number]["value"];
+
+export const GRID_COLUMN_OPTIONS = [
+  { value: "auto", label: "Auto", Icon: LayoutGrid },
+  { value: "2", label: "2 columns", Icon: Columns2 },
+  { value: "3", label: "3 columns", Icon: Columns3 },
+  { value: "4", label: "4 columns", Icon: Columns4 },
+  { value: "5", label: "5 columns", Icon: Columns4 },
+  { value: "6", label: "6 columns", Icon: Columns4 },
+] as const;
+
+export type GridColumnMode = (typeof GRID_COLUMN_OPTIONS)[number]["value"];
+
+export const DEFAULT_GRID_COLUMN_MODE: GridColumnMode = "auto";
 
 function compareNullableStrings(a: string | undefined, b: string | undefined) {
   return (a || "").localeCompare(b || "");
