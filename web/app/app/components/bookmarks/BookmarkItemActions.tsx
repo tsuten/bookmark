@@ -31,7 +31,7 @@ export function BookmarkItemActions({
       <button
         type="button"
         className="p-2 text-gray-600 hover:bg-gray-200"
-        aria-label="タイトルを更新"
+        aria-label="Update title"
         disabled={updatingTitle}
         onClick={() => onUpdateTitle(bookmarkItem)}
       >

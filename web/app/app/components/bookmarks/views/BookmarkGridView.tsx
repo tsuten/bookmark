@@ -1,3 +1,4 @@
+import { Loader2 } from "lucide-react";
 import { BookmarkGridItemCard } from "~/components/bookmarks/items/BookmarkGridItemCard";
 import type { BookmarkGridViewProps } from "~/components/bookmarks/views/types";
 
@@ -36,7 +37,9 @@ export function BookmarkGridView({
         ))}
       </div>
       {isLoading && items.length > 0 ? (
-        <p className="pb-3 text-center text-sm text-gray-500">Updating...</p>
+        <div className="flex justify-center pb-3 text-gray-500">
+          <Loader2 aria-hidden className="h-4 w-4 animate-spin" />
+        </div>
       ) : null}
     </div>
   );

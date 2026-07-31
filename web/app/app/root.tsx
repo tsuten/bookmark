@@ -8,12 +8,14 @@ import {
 } from "react-router";
 
 import type { Route } from "./+types/root";
+import logo from "~/assets/logo.svg";
 import { AuthProvider } from "~/lib/auth/auth-context";
 import { resolveFirebaseConfig } from "~/lib/env/firebase-config";
 import { cloudflareContext } from "~/load-context";
 import "./app.css";
 
 export const links: Route.LinksFunction = () => [
+  { rel: "icon", href: logo, type: "image/svg+xml" },
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
     rel: "preconnect",

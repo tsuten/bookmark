@@ -1,3 +1,4 @@
+import { Loader2 } from "lucide-react";
 import type { GridColumnMode, ViewMode } from "~/components/bookmarks/bookmarkListConstants";
 import { BookmarkGridView } from "~/components/bookmarks/views/BookmarkGridView";
 import { BookmarkListView } from "~/components/bookmarks/views/BookmarkListView";
@@ -32,7 +33,7 @@ export function BookmarkListItems({
   if (isLoading && items.length === 0) {
     return (
       <div className="flex flex-1 items-center justify-center text-gray-500">
-        Loading...
+        <Loader2 aria-hidden className="h-6 w-6 animate-spin" />
       </div>
     );
   }

@@ -124,8 +124,8 @@ header {
 
   .sidebar-logo-image {
     @apply h-8 w-auto max-w-full object-contain opacity-70; 
-    transform: scaleX(-1);
-    rotate: -30deg;
+    /* transform: scaleX(-1);
+    rotate: -30deg; */
   }
 
   .bookmark-list-group {

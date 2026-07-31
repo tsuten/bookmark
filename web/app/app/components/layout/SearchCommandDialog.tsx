@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Search } from "lucide-react";
+import { Loader2, Search } from "lucide-react";
 import { Dialog } from "radix-ui";
 import { fetchAllBookmarks } from "~/lib/api/bookmarks";
 import { getAuthToken } from "~/lib/api/loaders";
@@ -165,7 +165,9 @@ export function SearchCommandDialog() {
           </div>
           <div className="command-dialog-results">
             {loading ? (
-              <p className="command-dialog-empty">Loading bookmarks...</p>
+              <div className="command-dialog-empty flex justify-center">
+                <Loader2 aria-hidden className="h-5 w-5 animate-spin text-gray-500" />
+              </div>
             ) : loadError ? (
               <p className="command-dialog-empty text-red-600">{loadError}</p>
             ) : query.trim() === "" ? (

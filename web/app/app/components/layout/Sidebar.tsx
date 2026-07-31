@@ -18,7 +18,7 @@ function SidebarItem({ to, label, icon, isActive }: SidebarItemProps) {
   return (
     <Link to={to} className="block min-w-0">
       <li
-        className={`flex min-w-0 flex-row items-center gap-2 p-1 pl-3 hover:bg-gray-200 ${isActive ? "bg-gray-200" : ""}`}
+        className={`flex min-w-0 flex-row items-center gap-2 p-1.5 pl-3 hover:bg-gray-200 ${isActive ? "bg-gray-200" : ""}`}
       >
         <span className="inline-flex shrink-0 items-center justify-center [&_svg]:size-4 [&_svg]:shrink-0">
           {icon}
@@ -64,12 +64,12 @@ const SidebarFixedNav = memo(function SidebarFixedNav({
         isActive={pathname === "/archived"}
       />
       <hr />
-      <div className="flex w-full min-w-0 flex-row items-center gap-2">
+      {/* <div className="flex w-full min-w-0 flex-row items-center gap-2">
         <InputWithIcon
           icon={<Search className="h-4 w-4" />}
           placeholder="search tags"
         />
-      </div>
+      </div> */}
     </>
   );
 });

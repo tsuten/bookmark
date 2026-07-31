@@ -161,9 +161,9 @@ function PasteBookmarkButton() {
 export function Header() {
   return (
     <header className="border-b border-gray-300">
-      <SearchCommandDialog />
-      <div className="flex flex-row items-center gap-2">
-        <InsertBookmarkForm />
+      {/* <SearchCommandDialog /> */}
+      <div className="ml-auto flex flex-row items-center gap-2">
+        {/* <InsertBookmarkForm /> */}
         <PasteBookmarkButton />
         <UserMenu />
       </div>
