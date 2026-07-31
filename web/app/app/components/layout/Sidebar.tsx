@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useParams, useRevalidator } from "react-router";
 import { Archive, Bookmark, List, Search, Tag } from "lucide-react";
 import type { ReactNode } from "react";
@@ -18,7 +18,7 @@ function SidebarItem({ to, label, icon, isActive }: SidebarItemProps) {
   return (
     <Link to={to} className="block min-w-0">
       <li
-        className={`flex min-w-0 flex-row items-center gap-2 p-1.5 pl-3 hover:bg-gray-200 ${isActive ? "bg-gray-200" : ""}`}
+        className={`m-1 flex min-w-0 flex-row items-center gap-2 rounded-md p-1 pl-3 hover:bg-gray-200 ${isActive ? "bg-gray-200" : ""}`}
       >
         <span className="inline-flex shrink-0 items-center justify-center [&_svg]:size-4 [&_svg]:shrink-0">
           {icon}
@@ -63,33 +63,60 @@ const SidebarFixedNav = memo(function SidebarFixedNav({
         icon={<Archive className="h-4 w-4" />}
         isActive={pathname === "/archived"}
       />
-      <hr />
-      {/* <div className="flex w-full min-w-0 flex-row items-center gap-2">
-        <InputWithIcon
-          icon={<Search className="h-4 w-4" />}
-          placeholder="search tags"
-        />
-      </div> */}
     </>
   );
 });
 
-const SidebarTagList = memo(function SidebarTagList({
-  bookmarkTags,
+function filterLabels(labels: string[], query: string): string[] {
+  const normalizedQuery = query.trim().toLowerCase();
+  if (!normalizedQuery) {
+    return labels;
+  }
+
+  return labels.filter((label) =>
+    label.toLowerCase().includes(normalizedQuery),
+  );
+}
+
+const SidebarLabelList = memo(function SidebarLabelList({
+  labels,
   routeTag,
+  filterQuery,
 }: {
-  bookmarkTags: string[];
+  labels: string[];
   routeTag: string | undefined;
+  filterQuery: string;
 }) {
+  const filteredLabels = useMemo(
+    () => filterLabels(labels, filterQuery),
+    [labels, filterQuery],
+  );
+
+  if (labels.length === 0) {
+    return (
+      <li className="sidebar-labels-empty list-none">
+        No labels yet. Add labels to bookmarks first.
+      </li>
+    );
+  }
+
+  if (filteredLabels.length === 0) {
+    return (
+      <li className="sidebar-labels-empty list-none">
+        No labels match your search.
+      </li>
+    );
+  }
+
   return (
     <>
-      {bookmarkTags.map((tag) => (
+      {filteredLabels.map((label) => (
         <SidebarItem
-          key={tag}
-          to={`/${encodeURIComponent(tag)}`}
-          label={tag}
+          key={label}
+          to={`/${encodeURIComponent(label)}`}
+          label={label}
           icon={<Tag className="h-4 w-4" />}
-          isActive={routeTag === tag}
+          isActive={routeTag === label}
         />
       ))}
     </>
@@ -101,17 +128,18 @@ export function Sidebar() {
   const { pathname } = useLocation();
   const { getIdToken, user } = useAuth();
   const revalidator = useRevalidator();
-  const [bookmarkTags, setBookmarkTags] = useState<string[]>([]);
+  const [labels, setLabels] = useState<string[]>([]);
+  const [labelFilterQuery, setLabelFilterQuery] = useState("");
 
   useEffect(() => {
     if (!user) {
-      setBookmarkTags([]);
+      setLabels([]);
       return;
     }
 
     let cancelled = false;
 
-    async function loadTags() {
+    async function loadLabels() {
       try {
         const token = await getIdToken();
         if (!token || cancelled) {
@@ -119,14 +147,14 @@ export function Sidebar() {
         }
         const tags = await fetchBookmarkTags(token);
         if (!cancelled) {
-          setBookmarkTags(tags);
+          setLabels(tags);
         }
       } catch (error) {
-        console.error("[sidebar] failed to load tags:", error);
+        console.error("[sidebar] failed to load labels:", error);
       }
     }
 
-    loadTags();
+    loadLabels();
 
     return () => {
       cancelled = true;
@@ -138,7 +166,21 @@ export function Sidebar() {
       <nav className="min-h-0 flex-1 overflow-y-auto">
         <ul className="min-w-0">
           <SidebarFixedNav pathname={pathname} />
-          <SidebarTagList bookmarkTags={bookmarkTags} routeTag={routeTag} />
+          {/* <hr /> */}
+          <li className="sidebar-labels-section list-none">
+            <p className="sidebar-labels-heading">Labels</p>
+            <InputWithIcon
+              icon={<Search className="h-4 w-4" />}
+              placeholder="Filter labels"
+              value={labelFilterQuery}
+              onChange={(event) => setLabelFilterQuery(event.target.value)}
+            />
+          </li>
+          <SidebarLabelList
+            labels={labels}
+            routeTag={routeTag}
+            filterQuery={labelFilterQuery}
+          />
         </ul>
       </nav>
       <SidebarLogo />

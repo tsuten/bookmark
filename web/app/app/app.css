@@ -1,15 +1,17 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif, "Noto Sans JP",
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  --font-weight-normal: 500;
 
   --color-brand: #78876F;
 }
 
 html,
 body {
-  @apply bg-white dark:bg-gray-950;
+  @apply bg-white font-normal text-gray-600 dark:bg-gray-950 dark:text-gray-300;
   height: 100%;
 
   @media (prefers-color-scheme: dark) {
@@ -58,7 +60,7 @@ header {
 
 @layer base {
   input {
-    @apply min-w-0 max-w-full rounded-sm bg-gray-100 p-1 text-sm;
+    @apply min-w-0 max-w-full rounded-sm bg-gray-100 p-1 text-sm text-gray-600;
   }
 
   input:focus {
@@ -66,7 +68,7 @@ header {
   }
 
   textarea {
-    @apply min-w-0 max-w-full rounded-sm bg-gray-100 p-1 text-sm;
+    @apply min-w-0 max-w-full rounded-sm bg-gray-100 p-1 text-sm text-gray-600;
   }
 
   textarea:focus {
@@ -126,6 +128,34 @@ header {
     @apply h-8 w-auto max-w-full object-contain opacity-70; 
     /* transform: scaleX(-1);
     rotate: -30deg; */
+  }
+
+  .sidebar-labels-section {
+    @apply py-1 px-2;
+  }
+
+  .sidebar-labels-heading {
+    @apply mb-1 pl-2 text-xs font-medium tracking-wide text-gray-500;
+  }
+
+  .sidebar-labels-empty {
+    @apply px-3 py-2 text-sm text-gray-500;
+  }
+
+  .input-with-icon {
+    @apply flex w-full min-w-0 items-center rounded-sm bg-gray-100;
+  }
+
+  .input-with-icon:focus-within {
+    @apply outline-2 outline-brand;
+  }
+
+  .input-with-icon input {
+    @apply min-w-0 flex-1 rounded-none border-0 bg-transparent focus:outline-none;
+  }
+
+  .input-with-icon-icon {
+    @apply inline-flex shrink-0 items-center justify-center pl-2 pr-1 [&_svg]:size-4 [&_svg]:shrink-0;
   }
 
   .bookmark-list-group {
