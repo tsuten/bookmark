@@ -235,4 +235,35 @@ header {
   .command-dialog-result-item {
     @apply flex w-full flex-col gap-0.5 px-4 py-2 text-left hover:bg-gray-100;
   }
+
+  @keyframes beta-caution-shake {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    20%,
+    60% {
+      transform: translateX(-6px);
+    }
+    40%,
+    80% {
+      transform: translateX(6px);
+    }
+  }
+
+  .beta-caution-overlay {
+    @apply fixed inset-0 z-50 bg-black/40;
+  }
+
+  .beta-caution-content {
+    @apply fixed top-1/2 left-1/2 z-50 w-[min(100%-2rem,28rem)] -translate-x-1/2 -translate-y-1/2 rounded-lg border border-gray-300 bg-white p-6 shadow-xl;
+  }
+
+  .beta-caution-action {
+    @apply mt-4 w-full rounded-sm bg-blue-500 px-3 py-2 text-white hover:bg-blue-600;
+  }
+
+  .beta-caution-action--shake {
+    animation: beta-caution-shake 0.4s ease-in-out;
+  }
 }
