@@ -27,7 +27,7 @@ import {
 import { fetchPageTitle } from "~/lib/api/getTitle";
 import { getAuthToken } from "~/lib/api/loaders";
 import { ApiError } from "~/lib/api/client";
-import { BugIcon } from "lucide-react";
+import { BugIcon, MessageCircle } from "lucide-react";
 
 const STORAGE_KEY = "bookmarkEditPanelWidth";
 const VIEW_MODE_STORAGE_KEY = "bookmarkListViewMode";
@@ -37,6 +37,42 @@ const PANEL_EDIT = "edit";
 const PANEL_ANIMATION_MS = 320;
 const DEFAULT_EDIT_LAYOUT = { [PANEL_LIST]: 70, [PANEL_EDIT]: 30 };
 const CLOSED_LAYOUT = { [PANEL_LIST]: 100, [PANEL_EDIT]: 0 };
+const FEEDBACK_ROTATE_MS = 10_000;
+
+const FEEDBACK_VARIANTS = [
+  { icon: BugIcon, label: "Found a bug?" },
+  { icon: MessageCircle, label: "Help us improve" },
+] as const;
+
+function FeedbackRotateButton() {
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setActiveIndex((current) => (current + 1) % FEEDBACK_VARIANTS.length);
+    }, FEEDBACK_ROTATE_MS);
+
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const { icon: Icon, label } = FEEDBACK_VARIANTS[activeIndex];
+
+  return (
+    <button
+      type="button"
+      data-tally-open="Y5vDN0"
+      className="absolute bottom-4 right-4 z-10 flex items-center gap-2 rounded-full bg-brand px-4 py-2 text-white"
+    >
+      <span
+        key={activeIndex}
+        className="feedback-rotate-content flex items-center gap-2"
+      >
+        <Icon aria-hidden className="size-4" />
+        {label}
+      </span>
+    </button>
+  );
+}
 
 function readSavedViewMode(): ViewMode {
   try {
@@ -315,14 +351,7 @@ export function BookmarkList({
             error={error}
             actions={bookmarkActions}
           />
-          <button
-            type="button"
-            data-tally-open="Y5vDN0"
-            className="absolute bottom-4 right-4 z-10 flex items-center gap-2 rounded-full bg-brand px-4 py-2 text-white"
-          >
-            <BugIcon className="size-4" />
-            Found a bug?
-          </button>
+          <FeedbackRotateButton />
         </div>
       </Panel>
 

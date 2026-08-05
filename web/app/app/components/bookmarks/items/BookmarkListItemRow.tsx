@@ -2,7 +2,6 @@ import { BookmarkItemActions } from "~/components/bookmarks/BookmarkItemActions"
 import {
   formatCreatedAtLabel,
   formatUrlDomain,
-  getTagsLabel,
 } from "~/components/bookmarks/formatBookmarkDisplay";
 import type { BookmarkItemActions as BookmarkItemActionsBundle } from "~/components/bookmarks/views/types";
 import type { BookmarkItem } from "~/lib/api/types";
@@ -16,7 +15,7 @@ export function BookmarkListItemRow({
   bookmarkItem,
   actions,
 }: BookmarkListItemRowProps) {
-  const tagsLabel = getTagsLabel(bookmarkItem);
+  const tags = bookmarkItem.tags ?? [];
   const urlDomain = formatUrlDomain(bookmarkItem.url);
   const updatingTitle = actions.updatingTitleId === bookmarkItem.id;
 
@@ -34,12 +33,15 @@ export function BookmarkListItemRow({
               {bookmarkItem.title}
             </span>
             <div className="flex min-w-0 flex-row items-center gap-4">
-              <span
-                className="max-w-[40%] min-w-0 shrink truncate text-sm text-gray-500"
-                title={tagsLabel}
-              >
-                {tagsLabel}
-              </span>
+              {tags.length > 0 ? (
+                <div className="flex max-w-[40%] min-w-0 shrink flex-wrap items-center gap-1">
+                  {tags.map((tag) => (
+                    <span key={tag} className="bookmark-list-tag-chip max-w-full truncate" title={tag}>
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              ) : null}
               <span
                 className="min-w-0 truncate text-sm text-gray-500"
                 title={bookmarkItem.url}
