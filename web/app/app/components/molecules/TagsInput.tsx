@@ -39,12 +39,20 @@ export function TagsInput({ value = [], onChange }: TagsInputProps) {
     <div className="tags-input">
       {value.map((tag) => (
         <span key={tag} className="tag-chip">
-          {tag}
+          <span className="tag-chip-label">{tag}</span>
           <button
             type="button"
+            tabIndex={-1}
             className="tag-chip-remove"
             aria-label={`Remove tag ${tag}`}
-            onClick={() => removeTag(tag)}
+            onMouseDown={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+            }}
+            onClick={(event) => {
+              event.stopPropagation();
+              removeTag(tag);
+            }}
           >
             <X className="h-3 w-3" aria-hidden />
           </button>
