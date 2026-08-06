@@ -1,6 +1,15 @@
 import { memo, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useParams, useRevalidator } from "react-router";
-import { Archive, Bookmark, List, Search, Tag } from "lucide-react";
+import {
+  Archive,
+  Bookmark,
+  CircleUserRound,
+  List,
+  Search,
+  Settings,
+  Tag,
+} from "lucide-react";
+import type { User } from "firebase/auth";
 import type { ReactNode } from "react";
 import { InputWithIcon } from "~/components/molecules/InputWithIcon";
 import { fetchBookmarkTags } from "~/lib/api/bookmarks";
@@ -31,9 +40,41 @@ function SidebarItem({ to, label, icon, isActive }: SidebarItemProps) {
 
 function SidebarLogo() {
   return (
-    <footer className="sidebar-logo gap-2">
+    <div className="sidebar-logo">
       <img src={logo} alt="" className="sidebar-logo-image" />
       <span className="sidebar-logo-text">leafee</span>
+    </div>
+  );
+}
+
+function SidebarUserSection({ user }: { user: User }) {
+  const displayName = user.displayName?.trim();
+  const email = user.email ?? "";
+  const primaryLabel = displayName || email || "Signed-in user";
+  const secondaryLabel = displayName && email ? email : null;
+
+  return (
+    <footer className="sidebar-user">
+      <span className="sidebar-user-avatar" aria-hidden>
+        {user.photoURL ? (
+          <img src={user.photoURL} alt="" className="sidebar-user-avatar-image" />
+        ) : (
+          <CircleUserRound className="h-5 w-5" />
+        )}
+      </span>
+      <div className="sidebar-user-info">
+        <p className="sidebar-user-name">{primaryLabel}</p>
+        {secondaryLabel ? (
+          <p className="sidebar-user-email">{secondaryLabel}</p>
+        ) : null}
+      </div>
+      <Link
+        to="/settings"
+        className="sidebar-user-settings"
+        aria-label="Settings"
+      >
+        <Settings className="h-4 w-4" />
+      </Link>
     </footer>
   );
 }
@@ -163,6 +204,7 @@ export function Sidebar() {
 
   return (
     <div className="sidebar flex min-h-0 flex-col overflow-x-hidden">
+      <SidebarLogo />
       <nav className="min-h-0 flex-1 overflow-y-auto">
         <ul className="min-w-0">
           <SidebarFixedNav pathname={pathname} />
@@ -183,7 +225,7 @@ export function Sidebar() {
           />
         </ul>
       </nav>
-      <SidebarLogo />
+      {user ? <SidebarUserSection user={user} /> : null}
     </div>
   );
 }

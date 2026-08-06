@@ -1,4 +1,4 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif, "Noto Sans JP",
@@ -51,11 +51,31 @@ main > *:last-child {
   overflow: hidden;
 }
 
-header {
-  padding: 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.app-header,
+.sidebar-logo {
+  @apply box-border flex shrink-0 items-center border-b border-gray-300;
+  height: 52px;
+  padding-inline: 10px;
+}
+
+.app-header {
+  @apply justify-end bg-gray-100;
+}
+
+.app-header button {
+  @apply inline-flex h-8 w-8 items-center justify-center rounded-md bg-transparent text-gray-600 hover:bg-gray-200;
+}
+
+.app-header button[type="button"][aria-haspopup="menu"] {
+  @apply gap-0 p-0 text-sm;
+}
+
+.app-header button[type="button"][aria-haspopup="menu"] svg {
+  @apply size-4 opacity-70;
+}
+
+.sidebar-logo {
+  @apply justify-center gap-2;
 }
 
 @layer base {
@@ -120,14 +140,40 @@ header {
     @apply flex h-full min-h-0 flex-col border-r border-gray-300 bg-gray-100 text-sm;
   }
 
-  .sidebar-logo {
-    @apply flex shrink-0 items-center justify-center border-t border-gray-300 p-3;
+  .sidebar-logo-image {
+    @apply h-8 w-auto max-w-full object-contain opacity-70;
   }
 
-  .sidebar-logo-image {
-    @apply h-8 w-auto max-w-full object-contain opacity-70; 
-    /* transform: scaleX(-1);
-    rotate: -30deg; */
+  .sidebar-logo-text {
+    @apply text-base font-semibold text-gray-700;
+  }
+
+  .sidebar-user {
+    @apply flex shrink-0 items-center gap-2 border-t border-gray-300 p-3;
+  }
+
+  .sidebar-user-avatar {
+    @apply inline-flex shrink-0 items-center justify-center text-gray-500;
+  }
+
+  .sidebar-user-avatar-image {
+    @apply h-8 w-8 rounded-full object-cover;
+  }
+
+  .sidebar-user-info {
+    @apply min-w-0 flex-1;
+  }
+
+  .sidebar-user-name {
+    @apply truncate text-sm font-medium text-gray-700;
+  }
+
+  .sidebar-user-email {
+    @apply truncate text-xs text-gray-500;
+  }
+
+  .sidebar-user-settings {
+    @apply inline-flex shrink-0 items-center justify-center rounded-md p-1.5 text-gray-600 hover:bg-gray-200;
   }
 
   .sidebar-labels-section {

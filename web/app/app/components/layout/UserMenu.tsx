@@ -19,7 +19,7 @@ export function UserMenu() {
 
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Trigger className="h-8 w-8 rounded-full">
+      <DropdownMenu.Trigger aria-label="User menu">
         <CircleUserRound aria-hidden />
       </DropdownMenu.Trigger>
       <DropdownMenu.Portal>

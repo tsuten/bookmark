@@ -141,7 +141,7 @@ function PasteBookmarkButton() {
         onClick={() => void pasteAndAdd()}
         disabled={submitting}
         aria-label="Paste and add"
-        className="inline-flex h-8 w-8 items-center justify-center rounded-full disabled:opacity-50 text-gray-600 bg-gray-100"
+        className="disabled:opacity-50"
       >
         {submitting ? (
           <Loader2 aria-hidden className="h-4 w-4 animate-spin" />
@@ -160,7 +160,7 @@ function PasteBookmarkButton() {
 
 export function Header() {
   return (
-    <header className="border-b border-gray-300">
+    <header className="app-header">
       {/* <SearchCommandDialog /> */}
       <div className="ml-auto flex flex-row items-center gap-2">
         {/* <InsertBookmarkForm /> */}
