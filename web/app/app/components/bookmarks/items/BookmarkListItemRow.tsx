@@ -21,7 +21,7 @@ export function BookmarkListItemRow({
 
   return (
     <li>
-      <div className="group flex min-w-0 flex-row justify-between gap-2 hover:bg-gray-100">
+      <div className="group flex min-w-0 flex-row justify-between gap-2 hover:bg-bg-main-hover">
         <a
           href={bookmarkItem.url}
           target="_blank"

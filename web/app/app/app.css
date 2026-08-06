@@ -7,6 +7,18 @@
   --font-weight-normal: 500;
 
   --color-brand: #78876F;
+
+  /* --color-bg-sub: #eef1ea; */
+  --color-bg-sub: #fff;
+  --color-bg-sub-hover: color-mix(in srgb, var(--color-bg-sub) 95%, #000);
+
+  /* --color-bg-main: #f8f7f4; */
+  --color-bg-main: #fff;
+  --color-bg-main-hover: color-mix(in srgb, var(--color-bg-main) 97%, #000);
+
+  /* --color-bg-header: #f8f7f4; */
+  --color-bg-header: #fff;
+  --color-bg-header-hover: color-mix(in srgb, var(--color-bg-header) 97%, #000);
 }
 
 html,
@@ -49,6 +61,7 @@ main > *:last-child {
   height: 100%;
   min-height: 0;
   overflow: hidden;
+  @apply bg-bg-main;
 }
 
 .app-header,
@@ -59,11 +72,11 @@ main > *:last-child {
 }
 
 .app-header {
-  @apply justify-end bg-gray-100;
+  @apply justify-end bg-bg-header;
 }
 
 .app-header button {
-  @apply inline-flex h-8 w-8 items-center justify-center rounded-md bg-transparent text-gray-600 hover:bg-gray-200;
+  @apply inline-flex h-8 w-8 items-center justify-center rounded-md bg-transparent text-gray-600 hover:bg-bg-header-hover;
 }
 
 .app-header button[type="button"][aria-haspopup="menu"] {
@@ -133,11 +146,11 @@ main > *:last-child {
 
   [role="menu"] [role="menuitem"][data-highlighted],
   [role="menu"] [role="menuitemradio"][data-highlighted] {
-    @apply bg-gray-200;
+    @apply bg-bg-main-hover;
   }
 
   .sidebar {
-    @apply flex h-full min-h-0 flex-col border-r border-gray-300 bg-gray-100 text-sm;
+    @apply flex h-full min-h-0 flex-col border-r border-gray-300 bg-bg-sub text-sm;
   }
 
   .sidebar-logo-image {
@@ -173,7 +186,7 @@ main > *:last-child {
   }
 
   .sidebar-user-settings {
-    @apply inline-flex shrink-0 items-center justify-center rounded-md p-1.5 text-gray-600 hover:bg-gray-200;
+    @apply inline-flex shrink-0 items-center justify-center rounded-md p-1.5 text-gray-600 hover:bg-bg-sub-hover;
   }
 
   .sidebar-labels-section {
@@ -265,7 +278,7 @@ main > *:last-child {
   }
 
   .bookmark-list-tag-chip {
-    @apply inline-flex items-center rounded-sm bg-gray-200 px-1.5 py-0 text-xs text-gray-700;
+    @apply inline-flex items-center rounded-sm bg-gray-100 px-1.5 py-0 text-xs text-gray-700;
   }
 
   .tag-chip-remove {
@@ -317,7 +330,7 @@ main > *:last-child {
   }
 
   .command-dialog-result-item {
-    @apply flex w-full flex-col gap-0.5 px-4 py-2 text-left hover:bg-gray-100;
+    @apply flex w-full flex-col gap-0.5 px-4 py-2 text-left hover:bg-bg-main-hover;
   }
 
   @keyframes feedback-rotate-in {

@@ -27,7 +27,7 @@ function SidebarItem({ to, label, icon, isActive }: SidebarItemProps) {
   return (
     <Link to={to} className="block min-w-0">
       <li
-        className={`m-1 flex min-w-0 flex-row items-center gap-2 rounded-md p-1 pl-3 hover:bg-gray-200 ${isActive ? "bg-gray-200" : ""}`}
+        className={`m-1 flex min-w-0 flex-row items-center gap-2 rounded-md p-1 pl-3 hover:bg-bg-sub-hover ${isActive ? "bg-bg-sub-hover" : ""}`}
       >
         <span className="inline-flex shrink-0 items-center justify-center [&_svg]:size-4 [&_svg]:shrink-0">
           {icon}
