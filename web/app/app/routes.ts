@@ -15,5 +15,6 @@ export default [
       route("uncategorized", "routes/uncategorized.tsx"),
       route(":tag", "routes/tagged.tsx"),
     ]),
+    route("settings", "routes/settings.tsx"),
   ]),
 ] satisfies RouteConfig;
