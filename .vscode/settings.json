@@ -1,4 +1,6 @@
 {
+    "css.lint.unknownAtRules": "ignore",
+    "scss.lint.unknownAtRules": "ignore",
     "files.exclude": {
         "**/flutter/ephemeral": true,
         "**/Flutter/ephemeral": true,

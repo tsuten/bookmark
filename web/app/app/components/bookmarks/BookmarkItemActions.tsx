@@ -30,7 +30,7 @@ export function BookmarkItemActions({
     <div className={className}>
       <button
         type="button"
-        className="p-2 text-gray-600 hover:bg-gray-200"
+        className="p-2 text-gray-600 hover:bg-bg-main-hover"
         aria-label="Update title"
         disabled={updatingTitle}
         onClick={() => onUpdateTitle(bookmarkItem)}
@@ -43,7 +43,7 @@ export function BookmarkItemActions({
       </button>
       <button
         type="button"
-        className="p-2 text-gray-600 hover:bg-gray-200"
+        className="p-2 text-gray-600 hover:bg-bg-main-hover"
         aria-label="Edit"
         onClick={() => onEdit(bookmarkItem)}
       >
@@ -52,7 +52,7 @@ export function BookmarkItemActions({
       {bookmarkItem.is_archived ? (
         <button
           type="button"
-          className="p-2 text-gray-600 hover:bg-gray-200"
+          className="p-2 text-gray-600 hover:bg-bg-main-hover"
           aria-label="Restore"
           onClick={() => onRestore(bookmarkItem)}
         >
@@ -61,7 +61,7 @@ export function BookmarkItemActions({
       ) : (
         <button
           type="button"
-          className="p-2 text-gray-600 hover:bg-gray-200"
+          className="p-2 text-gray-600 hover:bg-bg-main-hover"
           aria-label="Archive"
           onClick={() => onArchive(bookmarkItem)}
         >

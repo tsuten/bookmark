@@ -123,10 +123,10 @@ export function BookmarkEditDrawer({
           ) : null}
         </label>
 
-        <label className="flex flex-col gap-1 text-sm text-gray-700">
-          Tags
+        <div className="flex flex-col gap-1 text-sm text-gray-700">
+          <span>Tags</span>
           <TagsInput value={tags} onChange={setTags} />
-        </label>
+        </div>
 
         <label className="flex flex-col gap-1 text-sm text-gray-700">
           Note

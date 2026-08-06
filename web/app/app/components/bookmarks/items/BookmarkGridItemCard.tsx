@@ -21,7 +21,7 @@ export function BookmarkGridItemCard({
   const updatingTitle = actions.updatingTitleId === bookmarkItem.id;
 
   return (
-    <div className="group relative rounded border border-gray-200 hover:bg-gray-50">
+    <div className="group relative rounded border border-gray-200 hover:bg-bg-main-hover">
       <a
         href={bookmarkItem.url}
         target="_blank"
