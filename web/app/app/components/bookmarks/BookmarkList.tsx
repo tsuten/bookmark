@@ -38,14 +38,53 @@ const PANEL_ANIMATION_MS = 320;
 const DEFAULT_EDIT_LAYOUT = { [PANEL_LIST]: 70, [PANEL_EDIT]: 30 };
 const CLOSED_LAYOUT = { [PANEL_LIST]: 100, [PANEL_EDIT]: 0 };
 const FEEDBACK_ROTATE_MS = 10_000;
+const TALLY_FEEDBACK_FORM_ID = "Y5vDN0";
 
 const FEEDBACK_VARIANTS = [
   { icon: BugIcon, label: "Found a bug?" },
   { icon: MessageCircle, label: "Help us improve" },
 ] as const;
 
+function useTallyPopupOpen(formId: string) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (typeof event.data !== "string" || !event.data.includes("Tally.")) {
+        return;
+      }
+
+      try {
+        const { payload } = JSON.parse(event.data) as {
+          payload?: { formId?: string };
+        };
+        if (payload?.formId !== formId) {
+          return;
+        }
+
+        if (event.data.includes("Tally.FormLoaded")) {
+          setIsOpen(true);
+          return;
+        }
+
+        if (event.data.includes("Tally.PopupClosed")) {
+          setIsOpen(false);
+        }
+      } catch {
+        // Ignore non-Tally messages.
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [formId]);
+
+  return isOpen;
+}
+
 function FeedbackRotateButton() {
   const [activeIndex, setActiveIndex] = useState(0);
+  const isTallyFormOpen = useTallyPopupOpen(TALLY_FEEDBACK_FORM_ID);
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -57,10 +96,14 @@ function FeedbackRotateButton() {
 
   const { icon: Icon, label } = FEEDBACK_VARIANTS[activeIndex];
 
+  if (isTallyFormOpen) {
+    return null;
+  }
+
   return (
     <button
       type="button"
-      data-tally-open="Y5vDN0"
+      data-tally-open={TALLY_FEEDBACK_FORM_ID}
       className="absolute bottom-4 right-4 z-10 flex items-center gap-2 rounded-full bg-brand px-4 py-2 text-white"
     >
       <span
