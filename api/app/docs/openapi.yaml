@@ -1,0 +1,718 @@
+openapi: 3.1.0
+info:
+  title: Bookmark API
+  version: 1.0.0
+  description: Bookmark management API backed by Cloudflare Workers and D1.
+
+servers:
+  - url: /
+
+tags:
+  - name: Health
+    description: Health check and development utilities
+  - name: Profile
+    description: User profile management
+  - name: Bookmarks
+    description: Bookmark CRUD and listing
+  - name: Tags
+    description: Bookmark tag operations
+  - name: Utility
+    description: Helper endpoints
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Firebase ID Token
+
+  schemas:
+    Profile:
+      type: object
+      required:
+        - userId
+        - displayName
+        - createdAt
+        - updatedAt
+      properties:
+        userId:
+          type: string
+        displayName:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ProfileCreateInput:
+      type: object
+      properties:
+        displayName:
+          type: string
+          default: ""
+
+    ProfileUpdateInput:
+      type: object
+      required:
+        - displayName
+      properties:
+        displayName:
+          type: string
+
+    BookmarkItem:
+      type: object
+      required:
+        - id
+        - title
+        - url
+        - is_archived
+        - userId
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        url:
+          type: string
+          format: uri
+        tags:
+          type: array
+          items:
+            type: string
+        note:
+          type: string
+        is_archived:
+          type: boolean
+        userId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    BookmarkListResponse:
+      type: object
+      required:
+        - items
+        - page
+        - limit
+        - total
+        - totalPages
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/BookmarkItem"
+        page:
+          type: integer
+          minimum: 1
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+        total:
+          type: integer
+          minimum: 0
+        totalPages:
+          type: integer
+          minimum: 0
+
+    BookmarkTagsResponse:
+      type: object
+      required:
+        - tags
+      properties:
+        tags:
+          type: array
+          items:
+            type: string
+
+    BookmarkCreateInput:
+      type: object
+      required:
+        - url
+      properties:
+        title:
+          type: string
+          default: untitled
+        url:
+          type: string
+          format: uri
+        tags:
+          type: array
+          items:
+            type: string
+        note:
+          type: string
+        is_archived:
+          type: boolean
+          default: false
+
+    BookmarkUpdateInput:
+      type: object
+      properties:
+        title:
+          type: string
+        url:
+          type: string
+          format: uri
+        tags:
+          type: array
+          items:
+            type: string
+        note:
+          type: string
+          nullable: true
+
+    OkResponse:
+      type: object
+      required:
+        - ok
+      properties:
+        ok:
+          type: boolean
+          const: true
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+
+    GetTitleResponse:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          type: string
+          nullable: true
+
+  parameters:
+    PageParam:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+      description: Page number (1-based)
+
+    LimitParam:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+      description: Items per page
+
+    BookmarkIdParam:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Bookmark UUID
+
+    TagParam:
+      name: tag
+      in: path
+      required: true
+      schema:
+        type: string
+      description: Tag name (URL-encoded)
+
+    UrlParam:
+      name: url
+      in: query
+      required: true
+      schema:
+        type: string
+        format: uri
+      description: HTTP or HTTPS URL to fetch title from
+
+  responses:
+    Unauthorized:
+      description: Not authorized
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error: not-authorized
+            message: Not authorized.
+
+    InvalidArgs:
+      description: Invalid request arguments
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error: invalid-args
+            message: Invalid request arguments.
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error: not-found
+            message: Resource not found.
+
+    FetchFailed:
+      description: Failed to fetch external URL
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error: fetch-failed
+            message: Failed to fetch URL.
+
+    FirebaseNotConfigured:
+      description: Firebase is not configured on the server
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error: firebase-not-configured
+            message: Firebase is not configured on the server.
+
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            error: internal-error
+            message: Internal server error.
+
+paths:
+  /:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      description: Returns a plain text message indicating the API server is running.
+      security: []
+      responses:
+        "200":
+          description: Server is running
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: yo api server lowkey running
+
+  /routes:
+    get:
+      tags:
+        - Health
+      summary: List registered routes
+      description: Returns a plain text list of all registered routes. Development utility.
+      x-internal: true
+      security: []
+      responses:
+        "200":
+          description: Route list
+          content:
+            text/plain:
+              schema:
+                type: string
+
+  /profile:
+    get:
+      tags:
+        - Profile
+      summary: Get profile
+      description: Returns the authenticated user's profile.
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Profile found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "503":
+          $ref: "#/components/responses/FirebaseNotConfigured"
+
+    post:
+      tags:
+        - Profile
+      summary: Create or ensure profile
+      description: Creates a profile if one does not exist. Returns 201 on creation, 200 if already exists.
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProfileCreateInput"
+      responses:
+        "200":
+          description: Profile already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+        "201":
+          description: Profile created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+        "503":
+          $ref: "#/components/responses/FirebaseNotConfigured"
+
+    patch:
+      tags:
+        - Profile
+      summary: Update profile
+      description: Updates the authenticated user's display name.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProfileUpdateInput"
+      responses:
+        "200":
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+        "400":
+          $ref: "#/components/responses/InvalidArgs"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "503":
+          $ref: "#/components/responses/FirebaseNotConfigured"
+
+    delete:
+      tags:
+        - Profile
+      summary: Delete profile
+      description: Deletes the authenticated user's profile.
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Profile deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OkResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "503":
+          $ref: "#/components/responses/FirebaseNotConfigured"
+
+  /bookmarks:
+    get:
+      tags:
+        - Bookmarks
+      summary: List active bookmarks
+      description: Returns a paginated list of non-archived bookmarks for the authenticated user.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/LimitParam"
+      responses:
+        "200":
+          description: Bookmark list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookmarkListResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "503":
+          $ref: "#/components/responses/FirebaseNotConfigured"
+
+    post:
+      tags:
+        - Bookmarks
+      summary: Create bookmark
+      description: Creates a new bookmark for the authenticated user.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookmarkCreateInput"
+      responses:
+        "200":
+          description: Bookmark created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OkResponse"
+        "400":
+          $ref: "#/components/responses/InvalidArgs"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "503":
+          $ref: "#/components/responses/FirebaseNotConfigured"
+
+  /bookmarks/archived:
+    get:
+      tags:
+        - Bookmarks
+      summary: List archived bookmarks
+      description: Returns a paginated list of archived bookmarks for the authenticated user.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/LimitParam"
+      responses:
+        "200":
+          description: Archived bookmark list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookmarkListResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "503":
+          $ref: "#/components/responses/FirebaseNotConfigured"
+
+  /bookmarks/uncategorized:
+    get:
+      tags:
+        - Bookmarks
+      summary: List uncategorized bookmarks
+      description: Returns a paginated list of active bookmarks without tags.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/LimitParam"
+      responses:
+        "200":
+          description: Uncategorized bookmark list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookmarkListResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "503":
+          $ref: "#/components/responses/FirebaseNotConfigured"
+
+  /bookmarks/tags:
+    get:
+      tags:
+        - Tags
+      summary: List bookmark tags
+      description: Returns all unique tags from active bookmarks for the authenticated user.
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Tag list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookmarkTagsResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "503":
+          $ref: "#/components/responses/FirebaseNotConfigured"
+
+  /bookmarks/tags/{tag}:
+    get:
+      tags:
+        - Tags
+      summary: List bookmarks by tag
+      description: Returns a paginated list of active bookmarks matching the given tag.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/TagParam"
+        - $ref: "#/components/parameters/PageParam"
+        - $ref: "#/components/parameters/LimitParam"
+      responses:
+        "200":
+          description: Bookmark list filtered by tag
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookmarkListResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "503":
+          $ref: "#/components/responses/FirebaseNotConfigured"
+
+  /bookmarks/{id}:
+    patch:
+      tags:
+        - Bookmarks
+      summary: Update bookmark
+      description: Partially updates a bookmark. Only provided fields are changed.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/BookmarkIdParam"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookmarkUpdateInput"
+      responses:
+        "200":
+          description: Bookmark updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OkResponse"
+        "400":
+          $ref: "#/components/responses/InvalidArgs"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "503":
+          $ref: "#/components/responses/FirebaseNotConfigured"
+
+    delete:
+      tags:
+        - Bookmarks
+      summary: Delete bookmark
+      description: Permanently deletes a bookmark.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/BookmarkIdParam"
+      responses:
+        "200":
+          description: Bookmark deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OkResponse"
+        "400":
+          $ref: "#/components/responses/InvalidArgs"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "503":
+          $ref: "#/components/responses/FirebaseNotConfigured"
+
+  /bookmarks/{id}/archive:
+    patch:
+      tags:
+        - Bookmarks
+      summary: Archive bookmark
+      description: Marks a bookmark as archived.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/BookmarkIdParam"
+      responses:
+        "200":
+          description: Bookmark archived
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OkResponse"
+        "400":
+          $ref: "#/components/responses/InvalidArgs"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "503":
+          $ref: "#/components/responses/FirebaseNotConfigured"
+
+  /bookmarks/{id}/restore:
+    patch:
+      tags:
+        - Bookmarks
+      summary: Restore bookmark
+      description: Restores an archived bookmark to active status.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/BookmarkIdParam"
+      responses:
+        "200":
+          description: Bookmark restored
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OkResponse"
+        "400":
+          $ref: "#/components/responses/InvalidArgs"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "503":
+          $ref: "#/components/responses/FirebaseNotConfigured"
+
+  /get-title:
+    get:
+      tags:
+        - Utility
+      summary: Fetch page title
+      description: Fetches the title of a web page from the given URL.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/UrlParam"
+      responses:
+        "200":
+          description: Title fetched (may be null if not found)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetTitleResponse"
+        "400":
+          $ref: "#/components/responses/InvalidArgs"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "502":
+          $ref: "#/components/responses/FetchFailed"
+        "503":
+          $ref: "#/components/responses/FirebaseNotConfigured"
