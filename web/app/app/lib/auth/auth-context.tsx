@@ -53,7 +53,9 @@ export function AuthProvider({
       if (nextUser) {
         try {
           const token = await nextUser.getIdToken();
-          await ensureProfile(token);
+          await ensureProfile(token, {
+            displayName: nextUser.displayName ?? "",
+          });
         } catch (error) {
           if (!(error instanceof ApiError && error.code === "api-not-configured")) {
             console.error("[profile] ensureProfile failed:", error);

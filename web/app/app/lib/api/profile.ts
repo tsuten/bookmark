@@ -7,10 +7,13 @@ type Profile = {
   updatedAt: string;
 };
 
-export async function ensureProfile(token: string): Promise<Profile> {
+export async function ensureProfile(
+  token: string,
+  body: { displayName?: string } = {},
+): Promise<Profile> {
   return apiFetch<Profile>("/profile", {
     token,
     method: "POST",
-    body: {},
+    body,
   });
 }

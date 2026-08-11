@@ -1,11 +1,11 @@
 const MESSAGES: Record<string, string> = {
-  "auth/invalid-credential": "The email address or password is incorrect.",
-  "auth/user-not-found": "The email address or password is incorrect.",
-  "auth/wrong-password": "The email address or password is incorrect.",
-  "auth/invalid-email": "Please enter a valid email address.",
-  "auth/email-already-in-use": "This email address is already registered.",
-  "auth/weak-password": "Please enter a password with at least 6 characters.",
-  "auth/missing-password": "Please enter a password.",
+  "auth/popup-closed-by-user": "Sign-in was cancelled.",
+  "auth/popup-blocked":
+    "The sign-in popup was blocked. Please check your browser settings.",
+  "auth/cancelled-popup-request":
+    "Sign-in is already in progress. Please wait a moment.",
+  "auth/account-exists-with-different-credential":
+    "This email address is registered with a different sign-in method.",
   "auth/too-many-requests":
     "Too many attempts. Please wait a moment and try again.",
   "auth/network-request-failed": "A network error occurred.",
