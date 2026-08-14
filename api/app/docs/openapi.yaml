@@ -716,3 +716,27 @@ paths:
           $ref: "#/components/responses/FetchFailed"
         "503":
           $ref: "#/components/responses/FirebaseNotConfigured"
+
+  /favicons/{domain}:
+    get:
+      tags:
+        - Utility
+      summary: Fetch favicon for a domain
+      description: Returns the cached favicon image for the given domain. Fetches and stores on first request.
+      parameters:
+        - name: domain
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Hostname (e.g. github.com)
+      responses:
+        "200":
+          description: Favicon image
+          content:
+            image/*:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: Favicon not found or domain invalid

@@ -7,6 +7,8 @@ export const profiles = sqliteTable('profiles', {
   updatedAt: text('updated_at').notNull(),
 })
 
+export type BookmarkMeta = Record<string, unknown>
+
 export const bookmarks = sqliteTable(
   'bookmarks',
   {
@@ -16,6 +18,7 @@ export const bookmarks = sqliteTable(
     url: text('url').notNull(),
     tags: text('tags', { mode: 'json' }).$type<string[] | null>(),
     note: text('note'),
+    meta: text('meta', { mode: 'json' }).$type<BookmarkMeta | null>(),
     isArchived: integer('is_archived', { mode: 'boolean' }).notNull().default(false),
     createdAt: text('created_at').notNull(),
     updatedAt: text('updated_at').notNull(),

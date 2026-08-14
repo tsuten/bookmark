@@ -3,7 +3,6 @@ import type { BookmarkListPagination, BookmarkListResponse, BookmarkListScope } 
 import { serializeBookmarkItem } from './bookmarkItems'
 import { getDb } from './db'
 import { bookmarks } from './db/schema'
-
 function buildScopeCondition(userId: string, scope: BookmarkListScope) {
   const userMatch = eq(bookmarks.userId, userId)
 
@@ -101,6 +100,21 @@ export async function listBookmarkTags(db: D1Database, userId: string): Promise<
   }
 
   return [...tagSet].sort((a, b) => a.localeCompare(b))
+}
+
+export async function getBookmark(
+  db: D1Database,
+  userId: string,
+  id: string,
+): Promise<(typeof bookmarks.$inferSelect) | null> {
+  const drizzle = getDb(db)
+  const rows = await drizzle
+    .select()
+    .from(bookmarks)
+    .where(and(eq(bookmarks.id, id), eq(bookmarks.userId, userId)))
+    .limit(1)
+
+  return rows[0] ?? null
 }
 
 export async function updateBookmark(

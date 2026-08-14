@@ -17,5 +17,11 @@
   "browser": {
     "binding": "BROWSER",
     "remote": true
-  }
+  },
+  "r2_buckets": [
+    {
+      "binding": "FAVICONS",
+      "bucket_name": "bookmark-favicons"
+    }
+  ]
 }

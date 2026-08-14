@@ -53,7 +53,7 @@ export function AppLayout() {
       >
         <Panel
           id={PANEL_SIDEBAR}
-          minSize={100}
+          minSize={150}
           defaultSize={200}
           maxSize={300}
         >

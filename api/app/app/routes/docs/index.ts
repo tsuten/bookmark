@@ -1,6 +1,9 @@
-import { swaggerUI } from '@hono/swagger-ui'
+import { Scalar } from '@scalar/hono-api-reference'
 import { createRoute } from 'honox/factory'
 
 export const GET = createRoute(
-  swaggerUI({ url: '/docs/openapi.yaml' }),
+  Scalar({
+    url: '/docs/openapi.yaml',
+    pageTitle: 'Bookmark API',
+  }),
 )

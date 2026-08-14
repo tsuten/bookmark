@@ -1,4 +1,5 @@
 import { BookmarkItemActions } from "~/components/bookmarks/BookmarkItemActions";
+import { BookmarkFavicon } from "~/components/bookmarks/items/BookmarkFavicon";
 import {
   formatCreatedAtLabel,
   formatUrlDomain,
@@ -26,9 +27,10 @@ export function BookmarkListItemRow({
           href={bookmarkItem.url}
           target="_blank"
           rel="noreferrer"
-          className="min-w-0 flex-1 overflow-hidden"
+          className="flex min-w-0 flex-1 flex-row items-center gap-3 overflow-hidden p-3"
         >
-          <div className="flex min-w-0 flex-col p-3">
+          <BookmarkFavicon url={bookmarkItem.url} />
+          <div className="flex min-w-0 flex-1 flex-col">
             <span className="truncate" title={bookmarkItem.title}>
               {bookmarkItem.title}
             </span>
