@@ -197,7 +197,7 @@ const SidebarLabelList = memo(function SidebarLabelList({
       {filteredLabels.map((label) => (
         <SidebarItem
           key={label}
-          to={`/${encodeURIComponent(label)}`}
+          to={`/tags/${encodeURIComponent(label)}`}
           label={label}
           icon={<Tag className="h-4 w-4" />}
           isActive={routeTag === label}

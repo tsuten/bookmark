@@ -12,7 +12,7 @@ export default [
       index("routes/home.tsx"),
       route("archived", "routes/archived.tsx"),
       route("uncategorized", "routes/uncategorized.tsx"),
-      route(":tag", "routes/tagged.tsx"),
+      route("tags/:tag", "routes/tagged.tsx"),
     ]),
     route("settings", "routes/settings.tsx"),
   ]),
