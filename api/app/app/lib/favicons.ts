@@ -1,4 +1,5 @@
 export const GOOGLE_FAVICON_ENDPOINT = 'https://www.google.com/s2/favicons'
+export const DUCKDUCKGO_FAVICON_ENDPOINT = 'https://icons.duckduckgo.com/ip3'
 
 export const FAVICON_SIZES = [128, 64, 32, 16] as const
 
@@ -18,6 +19,10 @@ export function buildFaviconObjectKey(domain: string): string {
 
 export function googleFaviconUrl(domain: string, size: number): string {
   return `${GOOGLE_FAVICON_ENDPOINT}?domain=${encodeURIComponent(domain)}&sz=${size}`
+}
+
+export function duckDuckGoFaviconUrl(domain: string): string {
+  return `${DUCKDUCKGO_FAVICON_ENDPOINT}/${encodeURIComponent(domain)}.ico`
 }
 
 export function readPngDimensions(bytes: ArrayBuffer): { width: number; height: number } | null {
@@ -58,22 +63,51 @@ export async function fetchLargestGoogleFavicon(
 
     const pixels = imagePixelCount(bytes)
     const contentType = response.headers.get('content-type') ?? 'image/png'
+    const dimensions = readPngDimensions(bytes)
 
     if (!best || pixels > best.pixels) {
       best = { bytes, contentType, pixels }
     }
 
-    const dimensions = readPngDimensions(bytes)
     if (dimensions && dimensions.width >= size && dimensions.height >= size) {
       break
     }
   }
 
   if (!best) {
-    throw new Error('Failed to fetch favicon.')
+    throw new Error('Failed to fetch favicon from Google.')
   }
 
   return { bytes: best.bytes, contentType: best.contentType }
+}
+
+export async function fetchDuckDuckGoFavicon(
+  domain: string,
+): Promise<{ bytes: ArrayBuffer; contentType: string }> {
+  const response = await fetch(duckDuckGoFaviconUrl(domain))
+  if (!response.ok) {
+    throw new Error('Failed to fetch favicon from DuckDuckGo.')
+  }
+
+  const bytes = await response.arrayBuffer()
+  if (bytes.byteLength === 0) {
+    throw new Error('DuckDuckGo favicon is empty.')
+  }
+
+  return {
+    bytes,
+    contentType: response.headers.get('content-type') ?? 'image/x-icon',
+  }
+}
+
+export async function fetchFaviconWithFallback(
+  domain: string,
+): Promise<{ bytes: ArrayBuffer; contentType: string }> {
+  try {
+    return await fetchLargestGoogleFavicon(domain)
+  } catch {
+    return fetchDuckDuckGoFavicon(domain)
+  }
 }
 
 export async function ensureDomainFavicon(
@@ -91,7 +125,7 @@ export async function ensureDomainFavicon(
 
   let favicon: { bytes: ArrayBuffer; contentType: string }
   try {
-    favicon = await fetchLargestGoogleFavicon(domain)
+    favicon = await fetchFaviconWithFallback(domain)
   } catch {
     return null
   }
