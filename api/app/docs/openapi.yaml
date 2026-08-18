@@ -129,11 +129,17 @@ components:
       type: object
       required:
         - tags
+        - pinned_tags
       properties:
         tags:
           type: array
           items:
             type: string
+        pinned_tags:
+          type: array
+          items:
+            type: string
+          description: Pinned tags in display order
 
     PinnedTagsResponse:
       type: object
@@ -569,7 +575,7 @@ paths:
       tags:
         - Tags
       summary: List bookmark tags
-      description: Returns all unique tags from active bookmarks for the authenticated user.
+      description: Returns all unique tags from active bookmarks and the user's pinned tags in display order.
       security:
         - BearerAuth: []
       responses:

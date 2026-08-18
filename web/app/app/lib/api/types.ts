@@ -20,6 +20,7 @@ export type BookmarkListResponse = {
 
 export type BookmarkTagsResponse = {
   tags: string[];
+  pinned_tags: string[];
 };
 
 export type PinnedTagsResponse = {

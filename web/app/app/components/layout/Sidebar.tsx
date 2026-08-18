@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate, useParams, useRevalidator } from "react-router";
 import { DragDropProvider } from "@dnd-kit/react";
 import { isSortable, useSortable } from "@dnd-kit/react/sortable";
@@ -19,11 +19,7 @@ import type { ReactNode } from "react";
 import { DropdownMenu } from "radix-ui";
 import { InputWithIcon } from "~/components/molecules/InputWithIcon";
 import { SettingsDialog } from "~/components/layout/SettingsDialog";
-import {
-  fetchBookmarkTags,
-  fetchPinnedTags,
-  patchPinnedTags,
-} from "~/lib/api/bookmarks";
+import { useSidebarLabels } from "~/lib/hooks/useSidebarLabels";
 import { useAuth } from "~/lib/auth/auth-context";
 import logo from "~/assets/logo.svg";
 
@@ -37,14 +33,16 @@ function arrayMove<T>(items: T[], from: number, to: number): T[] {
   return next;
 }
 
-function applyVisibleOrder(full: string[], visibleOrder: string[]): string[] {
-  const remaining = visibleOrder.slice();
-  return full.map((tag) => {
-    if (!remaining.includes(tag)) {
-      return tag;
-    }
-    return remaining.shift() ?? tag;
-  });
+function reorderPinnedTags(
+  pinned: string[],
+  labels: string[],
+  from: number,
+  to: number,
+): string[] {
+  const labelSet = new Set(labels);
+  const visible = pinned.filter((tag) => labelSet.has(tag));
+  const hidden = pinned.filter((tag) => !labelSet.has(tag));
+  return [...arrayMove(visible, from, to), ...hidden];
 }
 
 function filterLabels(labels: string[], query: string): string[] {
@@ -307,62 +305,12 @@ export function Sidebar() {
   const { pathname } = useLocation();
   const { getIdToken, user } = useAuth();
   const revalidator = useRevalidator();
-  const [labels, setLabels] = useState<string[]>([]);
-  const [pinned, setPinned] = useState<string[]>([]);
   const [labelFilterQuery, setLabelFilterQuery] = useState("");
-
-  const persistPinned = useCallback(
-    async (next: string[], previous: string[]) => {
-      setPinned(next);
-      try {
-        const token = await getIdToken();
-        if (!token) {
-          throw new Error("Missing auth token.");
-        }
-        const saved = await patchPinnedTags(token, next);
-        setPinned(saved);
-      } catch (error) {
-        console.error("[sidebar] failed to update pinned tags:", error);
-        setPinned(previous);
-      }
-    },
-    [getIdToken],
+  const { labels, pinned, updatePinned } = useSidebarLabels(
+    user?.uid,
+    getIdToken,
+    revalidator.state,
   );
-
-  useEffect(() => {
-    if (!user) {
-      setLabels([]);
-      setPinned([]);
-      return;
-    }
-
-    let cancelled = false;
-
-    async function loadLabels() {
-      try {
-        const token = await getIdToken();
-        if (!token || cancelled) {
-          return;
-        }
-        const [tags, pinnedTags] = await Promise.all([
-          fetchBookmarkTags(token),
-          fetchPinnedTags(token),
-        ]);
-        if (!cancelled) {
-          setLabels(tags);
-          setPinned(pinnedTags);
-        }
-      } catch (error) {
-        console.error("[sidebar] failed to load labels:", error);
-      }
-    }
-
-    loadLabels();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [user, getIdToken, revalidator.state]);
 
   const labelSet = useMemo(() => new Set(labels), [labels]);
   const pinnedSet = useMemo(() => new Set(pinned), [pinned]);
@@ -386,13 +334,13 @@ export function Sidebar() {
 
   const handleTogglePin = useCallback(
     (label: string) => {
-      const previous = pinned;
-      const next = pinnedSet.has(label)
-        ? pinned.filter((tag) => tag !== label)
-        : [...pinned, label];
-      void persistPinned(next, previous);
+      updatePinned((current) =>
+        current.includes(label)
+          ? current.filter((tag) => tag !== label)
+          : [...current, label],
+      );
     },
-    [pinned, pinnedSet, persistPinned],
+    [updatePinned],
   );
 
   const showEmpty = labels.length === 0;
@@ -430,18 +378,17 @@ export function Sidebar() {
                     if (event.canceled) {
                       return;
                     }
-                    const { source, target } = event.operation;
-                    if (!isSortable(source) || !isSortable(target)) {
+                    const { source } = event.operation;
+                    if (!isSortable(source)) {
                       return;
                     }
-                    const nextVisible = arrayMove(
-                      visiblePinned,
-                      source.index,
-                      target.index,
+                    const { initialIndex, index } = source;
+                    if (initialIndex === index) {
+                      return;
+                    }
+                    updatePinned((current) =>
+                      reorderPinnedTags(current, labels, initialIndex, index),
                     );
-                    const previous = pinned;
-                    const next = applyVisibleOrder(pinned, nextVisible);
-                    void persistPinned(next, previous);
                   }}
                 >
                   {filteredPinned.map((label, index) => (
