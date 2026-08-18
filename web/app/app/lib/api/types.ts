@@ -22,6 +22,10 @@ export type BookmarkTagsResponse = {
   tags: string[];
 };
 
+export type PinnedTagsResponse = {
+  pinned_tags: string[];
+};
+
 export type ApiErrorResponse = {
   error: string;
   message: string;

@@ -1,27 +1,33 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "bookmark-api",
-  "main": "./dist/index.js",
-  "compatibility_date": "2026-07-16",
-  "compatibility_flags": [
-    "nodejs_compat"
-  ],
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "bookmark",
-      "database_id": "3078ed61-6b23-47d8-8dac-78b6c725d263",
-      "migrations_dir": "migrations"
-    }
-  ],
-  "browser": {
-    "binding": "BROWSER",
-    "remote": true
-  },
-  "r2_buckets": [
-    {
-      "binding": "FAVICONS",
-      "bucket_name": "bookmark-favicons"
-    }
-  ]
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "bookmark-api",
+	"main": "./dist/index.js",
+	"compatibility_date": "2026-07-16",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "bookmark",
+			"database_id": "3078ed61-6b23-47d8-8dac-78b6c725d263",
+			"migrations_dir": "migrations"
+		}
+	],
+	"browser": {
+		"binding": "BROWSER",
+		"remote": true
+	},
+	"r2_buckets": [
+		{
+			"binding": "FAVICONS",
+			"bucket_name": "bookmark-favicons"
+		}
+	],
+	"kv_namespaces": [
+		{
+			"binding": "LEAFEE_PINNED_TAGS",
+			"id": "8e729335d20c4977a950a35a7ccae7f3"
+		}
+	]
 }

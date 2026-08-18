@@ -8,6 +8,7 @@ declare module 'hono' {
       FIREBASE_PROJECT_ID: string
       BROWSER: BrowserRun
       FAVICONS: R2Bucket
+      LEAFEE_PINNED_TAGS: KVNamespace
     }
   }
 }

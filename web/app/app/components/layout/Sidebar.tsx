@@ -1,11 +1,15 @@
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate, useParams, useRevalidator } from "react-router";
+import { DragDropProvider } from "@dnd-kit/react";
+import { isSortable, useSortable } from "@dnd-kit/react/sortable";
 import {
   Archive,
   Bookmark,
   CircleUserRound,
+  GripVertical,
   List,
   LogOut,
+  Pin,
   Search,
   Settings,
   Tag,
@@ -15,9 +19,44 @@ import type { ReactNode } from "react";
 import { DropdownMenu } from "radix-ui";
 import { InputWithIcon } from "~/components/molecules/InputWithIcon";
 import { SettingsDialog } from "~/components/layout/SettingsDialog";
-import { fetchBookmarkTags } from "~/lib/api/bookmarks";
+import {
+  fetchBookmarkTags,
+  fetchPinnedTags,
+  patchPinnedTags,
+} from "~/lib/api/bookmarks";
 import { useAuth } from "~/lib/auth/auth-context";
 import logo from "~/assets/logo.svg";
+
+function arrayMove<T>(items: T[], from: number, to: number): T[] {
+  if (from === to || from < 0 || to < 0 || from >= items.length || to >= items.length) {
+    return items;
+  }
+  const next = items.slice();
+  const [item] = next.splice(from, 1);
+  next.splice(to, 0, item);
+  return next;
+}
+
+function applyVisibleOrder(full: string[], visibleOrder: string[]): string[] {
+  const remaining = visibleOrder.slice();
+  return full.map((tag) => {
+    if (!remaining.includes(tag)) {
+      return tag;
+    }
+    return remaining.shift() ?? tag;
+  });
+}
+
+function filterLabels(labels: string[], query: string): string[] {
+  const normalizedQuery = query.trim().toLowerCase();
+  if (!normalizedQuery) {
+    return labels;
+  }
+
+  return labels.filter((label) =>
+    label.toLowerCase().includes(normalizedQuery),
+  );
+}
 
 type SidebarItemProps = {
   to: string;
@@ -38,6 +77,118 @@ function SidebarItem({ to, label, icon, isActive }: SidebarItemProps) {
         <span className="min-w-0 flex-1 truncate">{label}</span>
       </li>
     </Link>
+  );
+}
+
+function SidebarLabelRow({
+  label,
+  isPinned,
+  preventNavigation,
+  handleRef,
+  showGripIcon,
+  onTogglePin,
+}: {
+  label: string;
+  isPinned: boolean;
+  preventNavigation?: boolean;
+  handleRef?: (element: Element | null) => void;
+  showGripIcon?: boolean;
+  onTogglePin: (label: string) => void;
+}) {
+  return (
+    <>
+      <Link
+        to={`/tags/${encodeURIComponent(label)}`}
+        className="sidebar-label-link"
+        onClick={(event) => {
+          if (preventNavigation) {
+            event.preventDefault();
+          }
+        }}
+      >
+        <span
+          ref={handleRef}
+          className={`sidebar-label-icon ${showGripIcon ? "is-sortable" : ""}`}
+          aria-hidden={showGripIcon ? undefined : true}
+          aria-label={showGripIcon ? `Reorder ${label}` : undefined}
+        >
+          <Tag className="sidebar-label-icon-tag h-4 w-4" />
+          {showGripIcon ? (
+            <GripVertical className="sidebar-label-icon-grip h-4 w-4" />
+          ) : null}
+        </span>
+        <span className="min-w-0 flex-1 truncate">{label}</span>
+      </Link>
+      <button
+        type="button"
+        className={`sidebar-label-pin ${isPinned ? "is-pinned" : ""}`}
+        aria-label={isPinned ? `Unpin ${label}` : `Pin ${label}`}
+        onClick={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          onTogglePin(label);
+        }}
+      >
+        <Pin className={`h-3.5 w-3.5 ${isPinned ? "fill-current" : ""}`} />
+      </button>
+    </>
+  );
+}
+
+function SortablePinnedLabel({
+  label,
+  index,
+  isActive,
+  sortable,
+  onTogglePin,
+}: {
+  label: string;
+  index: number;
+  isActive: boolean;
+  sortable: boolean;
+  onTogglePin: (label: string) => void;
+}) {
+  const { ref, handleRef, isDragging } = useSortable({
+    id: label,
+    index,
+    group: "pinned-tags",
+    disabled: !sortable,
+  });
+
+  return (
+    <li
+      ref={ref}
+      className={`sidebar-label-row m-1 ${isActive ? "is-active" : ""} ${isDragging ? "is-dragging is-sortable-hover" : ""}`}
+    >
+      <SidebarLabelRow
+        label={label}
+        isPinned
+        preventNavigation={isDragging}
+        handleRef={sortable ? handleRef : undefined}
+        showGripIcon={sortable}
+        onTogglePin={onTogglePin}
+      />
+    </li>
+  );
+}
+
+function UnpinnedLabel({
+  label,
+  isActive,
+  onTogglePin,
+}: {
+  label: string;
+  isActive: boolean;
+  onTogglePin: (label: string) => void;
+}) {
+  return (
+    <li className={`sidebar-label-row m-1 ${isActive ? "is-active" : ""}`}>
+      <SidebarLabelRow
+        label={label}
+        isPinned={false}
+        onTogglePin={onTogglePin}
+      />
+    </li>
   );
 }
 
@@ -151,73 +302,37 @@ const SidebarFixedNav = memo(function SidebarFixedNav({
   );
 });
 
-function filterLabels(labels: string[], query: string): string[] {
-  const normalizedQuery = query.trim().toLowerCase();
-  if (!normalizedQuery) {
-    return labels;
-  }
-
-  return labels.filter((label) =>
-    label.toLowerCase().includes(normalizedQuery),
-  );
-}
-
-const SidebarLabelList = memo(function SidebarLabelList({
-  labels,
-  routeTag,
-  filterQuery,
-}: {
-  labels: string[];
-  routeTag: string | undefined;
-  filterQuery: string;
-}) {
-  const filteredLabels = useMemo(
-    () => filterLabels(labels, filterQuery),
-    [labels, filterQuery],
-  );
-
-  if (labels.length === 0) {
-    return (
-      <li className="sidebar-labels-empty list-none">
-        No labels yet. Add labels to bookmarks first.
-      </li>
-    );
-  }
-
-  if (filteredLabels.length === 0) {
-    return (
-      <li className="sidebar-labels-empty list-none">
-        No labels match your search.
-      </li>
-    );
-  }
-
-  return (
-    <>
-      {filteredLabels.map((label) => (
-        <SidebarItem
-          key={label}
-          to={`/tags/${encodeURIComponent(label)}`}
-          label={label}
-          icon={<Tag className="h-4 w-4" />}
-          isActive={routeTag === label}
-        />
-      ))}
-    </>
-  );
-});
-
 export function Sidebar() {
   const { tag: routeTag } = useParams();
   const { pathname } = useLocation();
   const { getIdToken, user } = useAuth();
   const revalidator = useRevalidator();
   const [labels, setLabels] = useState<string[]>([]);
+  const [pinned, setPinned] = useState<string[]>([]);
   const [labelFilterQuery, setLabelFilterQuery] = useState("");
+
+  const persistPinned = useCallback(
+    async (next: string[], previous: string[]) => {
+      setPinned(next);
+      try {
+        const token = await getIdToken();
+        if (!token) {
+          throw new Error("Missing auth token.");
+        }
+        const saved = await patchPinnedTags(token, next);
+        setPinned(saved);
+      } catch (error) {
+        console.error("[sidebar] failed to update pinned tags:", error);
+        setPinned(previous);
+      }
+    },
+    [getIdToken],
+  );
 
   useEffect(() => {
     if (!user) {
       setLabels([]);
+      setPinned([]);
       return;
     }
 
@@ -229,9 +344,13 @@ export function Sidebar() {
         if (!token || cancelled) {
           return;
         }
-        const tags = await fetchBookmarkTags(token);
+        const [tags, pinnedTags] = await Promise.all([
+          fetchBookmarkTags(token),
+          fetchPinnedTags(token),
+        ]);
         if (!cancelled) {
           setLabels(tags);
+          setPinned(pinnedTags);
         }
       } catch (error) {
         console.error("[sidebar] failed to load labels:", error);
@@ -245,13 +364,47 @@ export function Sidebar() {
     };
   }, [user, getIdToken, revalidator.state]);
 
+  const labelSet = useMemo(() => new Set(labels), [labels]);
+  const pinnedSet = useMemo(() => new Set(pinned), [pinned]);
+  const visiblePinned = useMemo(
+    () => pinned.filter((tag) => labelSet.has(tag)),
+    [pinned, labelSet],
+  );
+  const unpinned = useMemo(
+    () => labels.filter((tag) => !pinnedSet.has(tag)),
+    [labels, pinnedSet],
+  );
+  const filteredPinned = useMemo(
+    () => filterLabels(visiblePinned, labelFilterQuery),
+    [visiblePinned, labelFilterQuery],
+  );
+  const filteredUnpinned = useMemo(
+    () => filterLabels(unpinned, labelFilterQuery),
+    [unpinned, labelFilterQuery],
+  );
+  const sortable = labelFilterQuery.trim() === "";
+
+  const handleTogglePin = useCallback(
+    (label: string) => {
+      const previous = pinned;
+      const next = pinnedSet.has(label)
+        ? pinned.filter((tag) => tag !== label)
+        : [...pinned, label];
+      void persistPinned(next, previous);
+    },
+    [pinned, pinnedSet, persistPinned],
+  );
+
+  const showEmpty = labels.length === 0;
+  const showNoMatch =
+    !showEmpty && filteredPinned.length === 0 && filteredUnpinned.length === 0;
+
   return (
     <div className="sidebar flex min-h-0 flex-col overflow-x-hidden">
       <SidebarLogo />
       <nav className="min-h-0 flex-1 overflow-y-auto">
         <ul className="min-w-0">
           <SidebarFixedNav pathname={pathname} />
-          {/* <hr /> */}
           <li className="sidebar-labels-section list-none">
             <p className="sidebar-labels-heading">Labels</p>
             <InputWithIcon
@@ -261,11 +414,58 @@ export function Sidebar() {
               onChange={(event) => setLabelFilterQuery(event.target.value)}
             />
           </li>
-          <SidebarLabelList
-            labels={labels}
-            routeTag={routeTag}
-            filterQuery={labelFilterQuery}
-          />
+          {showEmpty ? (
+            <li className="sidebar-labels-empty list-none">
+              No labels yet. Add labels to bookmarks first.
+            </li>
+          ) : showNoMatch ? (
+            <li className="sidebar-labels-empty list-none">
+              No labels match your search.
+            </li>
+          ) : (
+            <>
+              {filteredPinned.length > 0 ? (
+                <DragDropProvider
+                  onDragEnd={(event) => {
+                    if (event.canceled) {
+                      return;
+                    }
+                    const { source, target } = event.operation;
+                    if (!isSortable(source) || !isSortable(target)) {
+                      return;
+                    }
+                    const nextVisible = arrayMove(
+                      visiblePinned,
+                      source.index,
+                      target.index,
+                    );
+                    const previous = pinned;
+                    const next = applyVisibleOrder(pinned, nextVisible);
+                    void persistPinned(next, previous);
+                  }}
+                >
+                  {filteredPinned.map((label, index) => (
+                    <SortablePinnedLabel
+                      key={label}
+                      label={label}
+                      index={index}
+                      isActive={routeTag === label}
+                      sortable={sortable}
+                      onTogglePin={handleTogglePin}
+                    />
+                  ))}
+                </DragDropProvider>
+              ) : null}
+              {filteredUnpinned.map((label) => (
+                <UnpinnedLabel
+                  key={label}
+                  label={label}
+                  isActive={routeTag === label}
+                  onTogglePin={handleTogglePin}
+                />
+              ))}
+            </>
+          )}
         </ul>
       </nav>
       {user ? <SidebarUserSection user={user} /> : null}

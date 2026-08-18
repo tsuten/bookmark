@@ -135,6 +135,29 @@ components:
           items:
             type: string
 
+    PinnedTagsResponse:
+      type: object
+      required:
+        - pinned_tags
+      properties:
+        pinned_tags:
+          type: array
+          items:
+            type: string
+          description: Pinned tags in display order
+
+    PinnedTagsInput:
+      type: object
+      required:
+        - pinned_tags
+      properties:
+        pinned_tags:
+          type: array
+          items:
+            type: string
+          maxItems: 50
+          description: Full replacement list of pinned tags in display order
+
     BookmarkCreateInput:
       type: object
       required:
@@ -556,6 +579,52 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/BookmarkTagsResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "503":
+          $ref: "#/components/responses/FirebaseNotConfigured"
+
+  /bookmarks/tags/pin:
+    get:
+      tags:
+        - Tags
+      summary: Get pinned tags
+      description: Returns the authenticated user's pinned tags in display order.
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Pinned tags
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PinnedTagsResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "503":
+          $ref: "#/components/responses/FirebaseNotConfigured"
+    patch:
+      tags:
+        - Tags
+      summary: Replace pinned tags
+      description: Replaces the entire pinned tag list. Array order is the display order.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PinnedTagsInput"
+      responses:
+        "200":
+          description: Updated pinned tags
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PinnedTagsResponse"
+        "400":
+          $ref: "#/components/responses/InvalidArgs"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "503":

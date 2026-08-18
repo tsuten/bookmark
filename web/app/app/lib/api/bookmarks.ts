@@ -3,6 +3,7 @@ import type {
   BookmarkListResponse,
   BookmarkListScope,
   BookmarkTagsResponse,
+  PinnedTagsResponse,
 } from "./types";
 
 const SCOPE_PATH: Record<Exclude<BookmarkListScope, { tag: string }>, string> =
@@ -57,6 +58,25 @@ export async function fetchBookmarkTags(token: string): Promise<string[]> {
     token,
   });
   return response.tags;
+}
+
+export async function fetchPinnedTags(token: string): Promise<string[]> {
+  const response = await apiFetch<PinnedTagsResponse>("/bookmarks/tags/pin", {
+    token,
+  });
+  return response.pinned_tags;
+}
+
+export async function patchPinnedTags(
+  token: string,
+  pinned_tags: string[],
+): Promise<string[]> {
+  const response = await apiFetch<PinnedTagsResponse>("/bookmarks/tags/pin", {
+    token,
+    method: "PATCH",
+    body: { pinned_tags },
+  });
+  return response.pinned_tags;
 }
 
 export async function createBookmark(

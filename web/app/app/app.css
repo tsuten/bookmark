@@ -219,6 +219,64 @@ main > *:last-child {
     @apply px-3 py-2 text-sm text-gray-500;
   }
 
+  .sidebar-label-row {
+    @apply relative m-1 flex min-w-0 flex-row items-center rounded-md p-1 pl-3 hover:bg-bg-sub-hover;
+  }
+
+  .sidebar-label-row.is-active {
+    @apply bg-bg-sub-hover;
+  }
+
+  .sidebar-label-row.is-dragging {
+    @apply opacity-60;
+  }
+
+  .sidebar-label-link {
+    @apply flex min-w-0 flex-1 flex-row items-center gap-2;
+  }
+
+  .sidebar-label-icon {
+    @apply inline-flex shrink-0 items-center justify-center [&_svg]:size-4 [&_svg]:shrink-0;
+  }
+
+  .sidebar-label-icon.is-sortable {
+    @apply cursor-grab;
+  }
+
+  .sidebar-label-icon.is-sortable:active {
+    @apply cursor-grabbing;
+  }
+
+  .sidebar-label-icon-grip {
+    @apply hidden;
+  }
+
+  .sidebar-label-row:hover .sidebar-label-icon.is-sortable .sidebar-label-icon-tag,
+  .sidebar-label-row:focus-within .sidebar-label-icon.is-sortable .sidebar-label-icon-tag,
+  .sidebar-label-row.is-sortable-hover .sidebar-label-icon.is-sortable .sidebar-label-icon-tag {
+    @apply hidden;
+  }
+
+  .sidebar-label-row:hover .sidebar-label-icon.is-sortable .sidebar-label-icon-grip,
+  .sidebar-label-row:focus-within .sidebar-label-icon.is-sortable .sidebar-label-icon-grip,
+  .sidebar-label-row.is-sortable-hover .sidebar-label-icon.is-sortable .sidebar-label-icon-grip {
+    @apply inline-flex;
+  }
+
+  .sidebar-label-pin {
+    @apply absolute top-1/2 right-0.5 inline-flex -translate-y-1/2 items-center justify-center rounded p-1 text-gray-400 opacity-0 hover:text-gray-600;
+  }
+
+  .sidebar-label-row:hover .sidebar-label-pin,
+  .sidebar-label-row:focus-within .sidebar-label-pin,
+  .sidebar-label-pin.is-pinned {
+    @apply opacity-100;
+  }
+
+  .sidebar-label-pin.is-pinned {
+    @apply text-gray-700;
+  }
+
   .input-with-icon {
     @apply flex w-full min-w-0 items-center rounded-sm bg-gray-100;
   }

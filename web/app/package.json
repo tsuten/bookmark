@@ -12,6 +12,7 @@
     "cf-typegen": "wrangler types"
   },
   "dependencies": {
+    "@dnd-kit/react": "^0.5.0",
     "@react-router/node": "8.0.0",
     "@react-router/serve": "8.0.0",
     "firebase": "^12.16.0",
