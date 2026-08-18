@@ -85,21 +85,31 @@ export async function listBookmarks(
   }
 }
 
-export async function listBookmarkTags(db: D1Database, userId: string): Promise<string[]> {
+export type BookmarkTagSummary = {
+  name: string
+  count: number
+}
+
+export async function listBookmarkTags(
+  db: D1Database,
+  userId: string,
+): Promise<BookmarkTagSummary[]> {
   const drizzle = getDb(db)
   const rows = await drizzle
     .select({ tags: bookmarks.tags })
     .from(bookmarks)
     .where(and(eq(bookmarks.userId, userId), eq(bookmarks.isArchived, false)))
 
-  const tagSet = new Set<string>()
+  const counts = new Map<string, number>()
   for (const row of rows) {
     for (const tag of row.tags ?? []) {
-      tagSet.add(tag)
+      counts.set(tag, (counts.get(tag) ?? 0) + 1)
     }
   }
 
-  return [...tagSet].sort((a, b) => a.localeCompare(b))
+  return [...counts.entries()]
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => a.name.localeCompare(b.name))
 }
 
 export async function getBookmark(

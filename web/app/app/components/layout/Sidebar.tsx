@@ -33,15 +33,15 @@ function arrayMove<T>(items: T[], from: number, to: number): T[] {
   return next;
 }
 
-function reorderPinnedTags(
+function reorderPinnedLabels(
   pinned: string[],
   labels: string[],
   from: number,
   to: number,
 ): string[] {
   const labelSet = new Set(labels);
-  const visible = pinned.filter((tag) => labelSet.has(tag));
-  const hidden = pinned.filter((tag) => !labelSet.has(tag));
+  const visible = pinned.filter((label) => labelSet.has(label));
+  const hidden = pinned.filter((label) => !labelSet.has(label));
   return [...arrayMove(visible, from, to), ...hidden];
 }
 
@@ -80,6 +80,7 @@ function SidebarItem({ to, label, icon, isActive }: SidebarItemProps) {
 
 function SidebarLabelRow({
   label,
+  count,
   isPinned,
   preventNavigation,
   handleRef,
@@ -87,6 +88,7 @@ function SidebarLabelRow({
   onTogglePin,
 }: {
   label: string;
+  count: number;
   isPinned: boolean;
   preventNavigation?: boolean;
   handleRef?: (element: Element | null) => void;
@@ -116,6 +118,7 @@ function SidebarLabelRow({
           ) : null}
         </span>
         <span className="min-w-0 flex-1 truncate">{label}</span>
+        <span className="sidebar-label-count">{count}</span>
       </Link>
       <button
         type="button"
@@ -135,12 +138,14 @@ function SidebarLabelRow({
 
 function SortablePinnedLabel({
   label,
+  count,
   index,
   isActive,
   sortable,
   onTogglePin,
 }: {
   label: string;
+  count: number;
   index: number;
   isActive: boolean;
   sortable: boolean;
@@ -160,6 +165,7 @@ function SortablePinnedLabel({
     >
       <SidebarLabelRow
         label={label}
+        count={count}
         isPinned
         preventNavigation={isDragging}
         handleRef={sortable ? handleRef : undefined}
@@ -172,10 +178,12 @@ function SortablePinnedLabel({
 
 function UnpinnedLabel({
   label,
+  count,
   isActive,
   onTogglePin,
 }: {
   label: string;
+  count: number;
   isActive: boolean;
   onTogglePin: (label: string) => void;
 }) {
@@ -183,6 +191,7 @@ function UnpinnedLabel({
     <li className={`sidebar-label-row m-1 ${isActive ? "is-active" : ""}`}>
       <SidebarLabelRow
         label={label}
+        count={count}
         isPinned={false}
         onTogglePin={onTogglePin}
       />
@@ -312,15 +321,20 @@ export function Sidebar() {
     revalidator.state,
   );
 
-  const labelSet = useMemo(() => new Set(labels), [labels]);
+  const labelNames = useMemo(() => labels.map((label) => label.name), [labels]);
+  const labelCountByName = useMemo(
+    () => new Map(labels.map((label) => [label.name, label.count])),
+    [labels],
+  );
+  const labelSet = useMemo(() => new Set(labelNames), [labelNames]);
   const pinnedSet = useMemo(() => new Set(pinned), [pinned]);
   const visiblePinned = useMemo(
-    () => pinned.filter((tag) => labelSet.has(tag)),
+    () => pinned.filter((label) => labelSet.has(label)),
     [pinned, labelSet],
   );
   const unpinned = useMemo(
-    () => labels.filter((tag) => !pinnedSet.has(tag)),
-    [labels, pinnedSet],
+    () => labelNames.filter((label) => !pinnedSet.has(label)),
+    [labelNames, pinnedSet],
   );
   const filteredPinned = useMemo(
     () => filterLabels(visiblePinned, labelFilterQuery),
@@ -336,7 +350,7 @@ export function Sidebar() {
     (label: string) => {
       updatePinned((current) =>
         current.includes(label)
-          ? current.filter((tag) => tag !== label)
+          ? current.filter((pinnedLabel) => pinnedLabel !== label)
           : [...current, label],
       );
     },
@@ -387,7 +401,12 @@ export function Sidebar() {
                       return;
                     }
                     updatePinned((current) =>
-                      reorderPinnedTags(current, labels, initialIndex, index),
+                      reorderPinnedLabels(
+                        current,
+                        labelNames,
+                        initialIndex,
+                        index,
+                      ),
                     );
                   }}
                 >
@@ -395,6 +414,7 @@ export function Sidebar() {
                     <SortablePinnedLabel
                       key={label}
                       label={label}
+                      count={labelCountByName.get(label) ?? 0}
                       index={index}
                       isActive={routeTag === label}
                       sortable={sortable}
@@ -407,6 +427,7 @@ export function Sidebar() {
                 <UnpinnedLabel
                   key={label}
                   label={label}
+                  count={labelCountByName.get(label) ?? 0}
                   isActive={routeTag === label}
                   onTogglePin={handleTogglePin}
                 />

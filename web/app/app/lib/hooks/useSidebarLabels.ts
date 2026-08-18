@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { fetchBookmarkTags, patchPinnedTags } from "~/lib/api/bookmarks";
+import type { BookmarkLabelSummary } from "~/lib/api/types";
 
 function sameStringArray(a: string[], b: string[]): boolean {
   return a.length === b.length && a.every((value, index) => value === b[index]);
 }
 
 export type UseSidebarLabelsResult = {
-  labels: string[];
+  labels: BookmarkLabelSummary[];
   pinned: string[];
   updatePinned: (updater: (current: string[]) => string[]) => void;
 };
@@ -16,7 +17,7 @@ export function useSidebarLabels(
   getIdToken: () => Promise<string | null>,
   refetchKey: unknown,
 ): UseSidebarLabelsResult {
-  const [labels, setLabels] = useState<string[]>([]);
+  const [labels, setLabels] = useState<BookmarkLabelSummary[]>([]);
   const [pinned, setPinnedState] = useState<string[]>([]);
   const pinnedRef = useRef<string[]>([]);
   const saveQueueRef = useRef(Promise.resolve());
@@ -36,7 +37,7 @@ export function useSidebarLabels(
   const enqueueSave = useCallback(() => {
     const payload = pinnedRef.current;
     if (new Set(payload).size !== payload.length) {
-      console.error("[sidebar-labels] PATCH skipped (duplicate tags)", {
+      console.error("[sidebar-labels] PATCH skipped (duplicate labels)", {
         pinned_tags: payload,
       });
       return;
@@ -127,7 +128,7 @@ export function useSidebarLabels(
 
     let cancelled = false;
 
-    async function refreshTags() {
+    async function refreshLabels() {
       try {
         const token = await getIdTokenRef.current();
         if (!token || cancelled) {
@@ -138,11 +139,11 @@ export function useSidebarLabels(
           setLabels(response.tags);
         }
       } catch (error) {
-        console.error("[sidebar-labels] GET tags refresh failed:", error);
+        console.error("[sidebar-labels] GET labels refresh failed:", error);
       }
     }
 
-    refreshTags();
+    refreshLabels();
 
     return () => {
       cancelled = true;

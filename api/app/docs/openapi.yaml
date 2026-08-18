@@ -125,6 +125,18 @@ components:
           type: integer
           minimum: 0
 
+    BookmarkTagSummary:
+      type: object
+      required:
+        - name
+        - count
+      properties:
+        name:
+          type: string
+        count:
+          type: integer
+          minimum: 0
+
     BookmarkTagsResponse:
       type: object
       required:
@@ -134,7 +146,7 @@ components:
         tags:
           type: array
           items:
-            type: string
+            $ref: "#/components/schemas/BookmarkTagSummary"
         pinned_tags:
           type: array
           items:

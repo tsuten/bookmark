@@ -18,8 +18,13 @@ export type BookmarkListResponse = {
   totalPages: number;
 };
 
+export type BookmarkLabelSummary = {
+  name: string;
+  count: number;
+};
+
 export type BookmarkTagsResponse = {
-  tags: string[];
+  tags: BookmarkLabelSummary[];
   pinned_tags: string[];
 };
 
