@@ -61,7 +61,7 @@ export function AppLayout() {
         </Panel>
         <Panel id={PANEL_MAIN}>
           <main>
-            <Header />
+            {/* <Header /> */}
             <Outlet />
           </main>
         </Panel>

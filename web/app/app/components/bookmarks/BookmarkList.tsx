@@ -376,7 +376,7 @@ export function BookmarkList({
       }}
     >
       <Panel id={PANEL_LIST} minSize={30}>
-        <div className="relative flex h-full min-h-0 flex-col">
+        <div className="flex h-full min-h-0 flex-col">
           <BookmarkListToolbar
             title={title}
             sortBy={sortBy}
@@ -386,15 +386,17 @@ export function BookmarkList({
             onViewChange={handleViewChange}
             onGridColumnsChange={handleGridColumnsChange}
           />
-          <BookmarkListItems
-            items={sortedBookmarkItems}
-            viewMode={viewMode}
-            gridColumns={gridColumns}
-            isLoading={isLoading}
-            error={error}
-            actions={bookmarkActions}
-          />
-          <FeedbackRotateButton />
+          <div className="relative flex min-h-0 flex-1 flex-col">
+            <BookmarkListItems
+              items={sortedBookmarkItems}
+              viewMode={viewMode}
+              gridColumns={gridColumns}
+              isLoading={isLoading}
+              error={error}
+              actions={bookmarkActions}
+            />
+            <FeedbackRotateButton />
+          </div>
         </div>
       </Panel>
 

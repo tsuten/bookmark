@@ -10,7 +10,7 @@ export function BookmarkListView({
 }: BookmarkListViewProps) {
   return (
     <ul
-      className={`min-h-0 flex-1 overflow-y-auto${isLoading ? " opacity-60" : ""}`}
+      className={`min-h-0 flex-1 overflow-y-auto pb-16${isLoading ? " opacity-60" : ""}`}
     >
       {items.map((bookmarkItem) => (
         <Fragment key={bookmarkItem.id}>

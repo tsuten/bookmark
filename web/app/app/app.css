@@ -50,24 +50,24 @@ body {
 }
 
 main {
-  display: grid;
-  grid-template-rows: auto 1fr;
+  display: flex;
+  flex-direction: column;
   height: 100%;
   min-width: 0;
   min-height: 0;
 }
 
 main > *:last-child {
-  height: 100%;
+  flex: 1;
   min-height: 0;
   overflow: hidden;
   @apply bg-bg-main;
 }
 
 .app-header,
-.sidebar-logo {
-  @apply box-border flex shrink-0 items-center border-b border-gray-300;
-  height: 52px;
+.sidebar-logo,
+.bookmark-list-toolbar {
+  @apply box-border flex h-12 shrink-0 items-center border-b border-gray-300;
   padding-inline: 10px;
 }
 
@@ -88,7 +88,23 @@ main > *:last-child {
 }
 
 .sidebar-logo {
-  @apply justify-center gap-2;
+  @apply justify-center gap-2 bg-bg-sub;
+}
+
+.bookmark-list-toolbar {
+  @apply justify-between gap-2 bg-bg-main;
+}
+
+.bookmark-list-toolbar-title {
+  @apply flex min-w-0 flex-1 items-center gap-2;
+}
+
+.bookmark-list-toolbar-title h2 {
+  @apply truncate text-base font-semibold text-gray-700;
+}
+
+.bookmark-list-toolbar-actions {
+  @apply flex shrink-0 items-center gap-2;
 }
 
 @layer base {
