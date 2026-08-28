@@ -94,7 +94,7 @@ function InsertBookmarkForm() {
   );
 }
 
-function PasteBookmarkButton() {
+export function PasteBookmarkButton() {
   const revalidator = useRevalidator();
   const { user } = useAuth();
   const [error, setError] = useState("");
