@@ -18,6 +18,7 @@ import {
   VIEW_OPTIONS,
   type ViewMode,
 } from "~/components/bookmarks/bookmarkListConstants";
+import { bookmarkMatchesQuery } from "~/components/bookmarks/formatBookmarkDisplay";
 import type { BookmarkItem } from "~/lib/types";
 
 const STORAGE_KEY = "bookmarkEditPanelWidth";
@@ -127,13 +128,17 @@ export function BookmarkList({
   const [activeBookmark, setActiveBookmark] = useState<BookmarkItem | null>(
     null,
   );
+  const [searchQuery, setSearchQuery] = useState("");
   const [isEditPanelOpen, setIsEditPanelOpen] = useState(false);
   const [isPanelAnimating, setIsPanelAnimating] = useState(false);
   const groupRef = useGroupRef();
   const closeTimerRef = useRef<number | null>(null);
   const sortedBookmarkItems = useMemo(
-    () => [...bookmarkItems].sort(compareForMode(sortBy)),
-    [bookmarkItems, sortBy],
+    () =>
+      bookmarkItems
+        .filter((item) => bookmarkMatchesQuery(item, searchQuery))
+        .sort(compareForMode(sortBy)),
+    [bookmarkItems, searchQuery, sortBy],
   );
 
   useEffect(() => {
@@ -243,6 +248,8 @@ export function BookmarkList({
         <div className="flex h-full min-h-0 flex-col">
           <BookmarkListToolbar
             title={title}
+            searchQuery={searchQuery}
+            onSearchQueryChange={setSearchQuery}
             sortBy={sortBy}
             viewMode={viewMode}
             gridColumns={gridColumns}

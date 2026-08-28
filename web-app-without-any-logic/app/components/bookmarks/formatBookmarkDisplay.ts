@@ -27,3 +27,21 @@ export function formatUrlDomain(url: string) {
 export function getTagsLabel(bookmarkItem: BookmarkItem) {
   return (bookmarkItem.tags ?? []).join(", ") || "No tags";
 }
+
+export function bookmarkMatchesQuery(bookmark: BookmarkItem, query: string) {
+  const normalizedQuery = query.trim().toLowerCase();
+  if (!normalizedQuery) {
+    return true;
+  }
+
+  const haystack = [
+    bookmark.title,
+    bookmark.url,
+    bookmark.note ?? "",
+    ...(bookmark.tags ?? []),
+  ]
+    .join(" ")
+    .toLowerCase();
+
+  return haystack.includes(normalizedQuery);
+}

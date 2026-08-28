@@ -26,7 +26,7 @@ export function BookmarkEditDrawer({
 
   return (
     <div className="bookmark-edit-panel" aria-label="Edit bookmark">
-      <div className="flex items-center justify-between border-b border-gray-300 px-4 py-[10px]">
+      <div className="bookmark-edit-panel-header">
         <h2 className="text-lg font-semibold text-gray-900">Edit bookmark</h2>
         <button
           type="button"

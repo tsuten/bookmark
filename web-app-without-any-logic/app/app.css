@@ -19,6 +19,8 @@
   /* --color-bg-header: #f8f7f4; */
   --color-bg-header: #fff;
   --color-bg-header-hover: color-mix(in srgb, var(--color-bg-header) 97%, #000);
+
+  --color-bg-button: #f0f0f0;
 }
 
 html,
@@ -66,7 +68,8 @@ main > *:last-child {
 
 .app-header,
 .sidebar-logo,
-.bookmark-list-toolbar {
+.bookmark-list-toolbar,
+.bookmark-edit-panel-header {
   @apply box-border flex h-12 shrink-0 items-center border-b border-gray-300;
   padding-inline: 10px;
 }
@@ -96,7 +99,11 @@ main > *:last-child {
 }
 
 .bookmark-list-toolbar-title {
-  @apply flex min-w-0 flex-1 items-center gap-2;
+  @apply flex min-w-0 max-w-[40%] shrink-0 items-center gap-2;
+}
+
+.bookmark-list-toolbar-search {
+  @apply min-w-32 max-w-md flex-1;
 }
 
 .bookmark-list-toolbar-title h2 {
@@ -129,7 +136,11 @@ main > *:last-child {
   }
 
   button {
-    @apply cursor-pointer rounded-full;
+    @apply cursor-pointer rounded-md;
+  }
+
+  .bookmark-list-toolbar button[type="button"] {
+    @apply bg-bg-button px-1.5 h-7 text-sm rounded-md;
   }
 
   button:focus {
@@ -327,9 +338,7 @@ main > *:last-child {
   }
 
   .bookmark-list-group.is-animating > [data-separator] {
-    transition:
-      flex 320ms ease-out,
-      opacity 320ms ease-out;
+    transition: opacity 320ms ease-out;
   }
 
   .bookmark-edit-panel-container {
@@ -341,7 +350,13 @@ main > *:last-child {
   }
 
   .bookmark-edit-separator {
-    @apply w-px shrink-0 bg-gray-300;
+    @apply w-px min-w-px max-w-px shrink-0 bg-transparent outline-none;
+    box-shadow: inset -1px 0 0 var(--color-gray-300);
+  }
+
+  .bookmark-edit-separator:focus,
+  .bookmark-edit-separator:focus-visible {
+    @apply outline-none;
   }
 
   /* .bookmark-edit-separator:hover,
@@ -353,9 +368,13 @@ main > *:last-child {
     @apply pointer-events-none w-0 opacity-0;
   }
 
-  .bookmark-edit-panel {
-    @apply flex h-full min-h-0 min-w-0 flex-col bg-white;
-  }
+.bookmark-edit-panel {
+  @apply flex h-full min-h-0 min-w-0 flex-col bg-white;
+}
+
+.bookmark-edit-panel-header {
+  @apply justify-between;
+}
 
   .tags-input {
     @apply flex min-h-8 flex-wrap items-center gap-1 rounded-sm bg-gray-100 p-1;

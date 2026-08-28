@@ -5,6 +5,7 @@ type InputWithIconProps = {
   placeholder?: string;
   value?: string;
   onChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  "aria-label"?: string;
 };
 
 export function InputWithIcon({
@@ -12,6 +13,7 @@ export function InputWithIcon({
   placeholder,
   value,
   onChange,
+  "aria-label": ariaLabel,
 }: InputWithIconProps) {
   return (
     <div className="input-with-icon">
@@ -21,6 +23,7 @@ export function InputWithIcon({
         placeholder={placeholder}
         value={value}
         onChange={onChange}
+        aria-label={ariaLabel}
       />
     </div>
   );

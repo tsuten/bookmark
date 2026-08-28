@@ -1,5 +1,6 @@
-import { Bookmark } from "lucide-react";
+import { Bookmark, Search } from "lucide-react";
 import { Dropdown } from "~/components/molecules/Dropdown";
+import { InputWithIcon } from "~/components/molecules/InputWithIcon";
 import {
   GRID_COLUMN_OPTIONS,
   SORT_OPTIONS,
@@ -12,6 +13,8 @@ import { PasteBookmarkButton } from "~/components/layout/Header";
 
 type BookmarkListToolbarProps = {
   title: string;
+  searchQuery: string;
+  onSearchQueryChange: (value: string) => void;
   sortBy: SortMode;
   viewMode: ViewMode;
   gridColumns: GridColumnMode;
@@ -22,6 +25,8 @@ type BookmarkListToolbarProps = {
 
 export function BookmarkListToolbar({
   title,
+  searchQuery,
+  onSearchQueryChange,
   sortBy,
   viewMode,
   gridColumns,
@@ -34,6 +39,15 @@ export function BookmarkListToolbar({
       <div className="bookmark-list-toolbar-title">
         <Bookmark className="h-4 w-4 shrink-0" />
         <h2>{title}</h2>
+      </div>
+      <div className="bookmark-list-toolbar-search">
+        <InputWithIcon
+          icon={<Search className="h-4 w-4" />}
+          placeholder="Search bookmarks..."
+          aria-label="Search bookmarks"
+          value={searchQuery}
+          onChange={(event) => onSearchQueryChange(event.target.value)}
+        />
       </div>
       <div className="bookmark-list-toolbar-actions">
         <Dropdown
