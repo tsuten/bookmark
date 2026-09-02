@@ -7,7 +7,7 @@ const app = createApp({
     app.use(
       '*',
       cors({
-        origin: '*',
+        origin: (origin) => origin || '*',
         allowMethods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
         allowHeaders: ['Authorization', 'Content-Type'],
       }),

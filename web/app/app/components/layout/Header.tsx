@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useRevalidator } from "react-router";
 import { ClipboardPaste, Loader2, Plus } from "lucide-react";
 import { SearchCommandDialog } from "~/components/layout/SearchCommandDialog";
 import { UserMenu } from "~/components/layout/UserMenu";
@@ -7,28 +6,21 @@ import {
   bookmarkUrlErrorMessage,
   validateHttpUrlString,
 } from "~/lib/bookmarks/validateUrl";
-import { createBookmark } from "~/lib/api/bookmarks";
-import { getAuthToken } from "~/lib/api/loaders";
 import { ApiError } from "~/lib/api/client";
 import { useAuth } from "~/lib/auth/auth-context";
+import { useBookmarkItemsStore } from "~/stores/bookmarkItemsStore";
 
-async function addBookmarkFromUrl(
-  url: string,
-  revalidator: ReturnType<typeof useRevalidator>,
-) {
+async function addBookmarkFromUrl(url: string) {
   const result = validateHttpUrlString(url);
   if (!result.valid) {
     return { ok: false as const, error: bookmarkUrlErrorMessage(result.errorCode) };
   }
 
-  const token = await getAuthToken();
-  await createBookmark(token, { url: url.trim() });
-  revalidator.revalidate();
+  await useBookmarkItemsStore.getState().create({ url: url.trim() });
   return { ok: true as const };
 }
 
 function InsertBookmarkForm() {
-  const revalidator = useRevalidator();
   const { user } = useAuth();
   const [url, setUrl] = useState("");
   const [urlError, setUrlError] = useState("");
@@ -46,7 +38,7 @@ function InsertBookmarkForm() {
     setUrlError("");
 
     try {
-      const result = await addBookmarkFromUrl(url, revalidator);
+      const result = await addBookmarkFromUrl(url);
       if (!result.ok) {
         setUrlError(result.error);
         return;
@@ -95,7 +87,6 @@ function InsertBookmarkForm() {
 }
 
 export function PasteBookmarkButton() {
-  const revalidator = useRevalidator();
   const { user } = useAuth();
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -106,7 +97,7 @@ export function PasteBookmarkButton() {
 
     try {
       const text = await navigator.clipboard.readText();
-      const result = await addBookmarkFromUrl(text, revalidator);
+      const result = await addBookmarkFromUrl(text);
       if (!result.ok) {
         setError(result.error);
       }

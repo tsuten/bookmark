@@ -9,7 +9,7 @@ import {
   LayoutGrid,
   List,
 } from "lucide-react";
-import type { BookmarkItem } from "~/lib/api/types";
+import type { BookmarkItem, BookmarkListSort } from "~/lib/api/types";
 
 export const SORT_OPTIONS = [
   { value: "newest", label: "Newest", Icon: ClockArrowDown },
@@ -18,7 +18,7 @@ export const SORT_OPTIONS = [
   { value: "za", label: "Z-A", Icon: ArrowDownAZ },
 ] as const;
 
-export type SortMode = (typeof SORT_OPTIONS)[number]["value"];
+export type SortMode = BookmarkListSort;
 
 export const VIEW_OPTIONS = [
   { value: "list", label: "List", Icon: List },

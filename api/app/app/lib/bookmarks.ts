@@ -1,5 +1,10 @@
-import { and, count, desc, eq, sql } from 'drizzle-orm'
-import type { BookmarkListPagination, BookmarkListResponse, BookmarkListScope } from './bookmarkItems'
+import { and, asc, count, desc, eq, sql } from 'drizzle-orm'
+import type {
+  BookmarkListPagination,
+  BookmarkListResponse,
+  BookmarkListScope,
+  BookmarkListSort,
+} from './bookmarkItems'
 import { serializeBookmarkItem } from './bookmarkItems'
 import { getDb } from './db'
 import { bookmarks } from './db/schema'
@@ -53,6 +58,20 @@ export async function createBookmark(
   })
 }
 
+function orderByForSort(sort: BookmarkListSort) {
+  switch (sort) {
+    case 'oldest':
+      return asc(bookmarks.createdAt)
+    case 'az':
+      return asc(bookmarks.title)
+    case 'za':
+      return desc(bookmarks.title)
+    case 'newest':
+    default:
+      return desc(bookmarks.createdAt)
+  }
+}
+
 export async function listBookmarks(
   db: D1Database,
   userId: string,
@@ -61,14 +80,14 @@ export async function listBookmarks(
 ): Promise<BookmarkListResponse> {
   const drizzle = getDb(db)
   const condition = buildScopeCondition(userId, scope)
-  const { page, limit, skip } = pagination
+  const { page, limit, skip, sort } = pagination
 
   const [items, totalResult] = await Promise.all([
     drizzle
       .select()
       .from(bookmarks)
       .where(condition)
-      .orderBy(desc(bookmarks.createdAt))
+      .orderBy(orderByForSort(sort))
       .limit(limit)
       .offset(skip),
     drizzle.select({ total: count() }).from(bookmarks).where(condition),

@@ -10,23 +10,14 @@ import { BookmarkEditDrawer } from "~/components/bookmarks/BookmarkEditDrawer";
 import { BookmarkListItems } from "~/components/bookmarks/BookmarkListItems";
 import { BookmarkListToolbar } from "~/components/bookmarks/BookmarkListToolbar";
 import {
-  compareForMode,
   DEFAULT_GRID_COLUMN_MODE,
   GRID_COLUMN_OPTIONS,
   type GridColumnMode,
-  type SortMode,
-  VIEW_OPTIONS,
   type ViewMode,
+  VIEW_OPTIONS,
 } from "~/components/bookmarks/bookmarkListConstants";
 import type { BookmarkItem } from "~/lib/api/types";
-import {
-  archiveBookmark,
-  restoreBookmark,
-  updateBookmarkTitle,
-} from "~/lib/api/bookmarks";
-import { fetchPageTitle } from "~/lib/api/getTitle";
-import { getAuthToken } from "~/lib/api/loaders";
-import { ApiError } from "~/lib/api/client";
+import { useBookmarkItemsStore } from "~/stores/bookmarkItemsStore";
 import { BugIcon, MessageCircle } from "lucide-react";
 
 const STORAGE_KEY = "bookmarkEditPanelWidth";
@@ -200,25 +191,28 @@ function scheduleLayout(
 
 type BookmarkListProps = {
   title: string;
-  bookmarkItems?: BookmarkItem[];
-  isLoading?: boolean;
-  error?: string | null;
-  onMutate: () => void;
 };
 
-export function BookmarkList({
-  title,
-  bookmarkItems = [],
-  isLoading = false,
-  error = null,
-  onMutate,
-}: BookmarkListProps) {
-  const [sortBy, setSortBy] = useState<SortMode>("newest");
+export function BookmarkList({ title }: BookmarkListProps) {
+  const items = useBookmarkItemsStore((state) => state.items);
+  const isLoading = useBookmarkItemsStore((state) => state.isLoading);
+  const isLoadingMore = useBookmarkItemsStore((state) => state.isLoadingMore);
+  const error = useBookmarkItemsStore((state) => state.error);
+  const sortBy = useBookmarkItemsStore((state) => state.sortBy);
+  const page = useBookmarkItemsStore((state) => state.page);
+  const totalPages = useBookmarkItemsStore((state) => state.totalPages);
+  const updatingTitleId = useBookmarkItemsStore(
+    (state) => state.updatingTitleId,
+  );
+  const setSort = useBookmarkItemsStore((state) => state.setSort);
+  const loadMore = useBookmarkItemsStore((state) => state.loadMore);
+  const archive = useBookmarkItemsStore((state) => state.archive);
+  const restore = useBookmarkItemsStore((state) => state.restore);
+  const updateTitle = useBookmarkItemsStore((state) => state.updateTitle);
   const [viewMode, setViewMode] = useState<ViewMode>(readSavedViewMode);
   const [gridColumns, setGridColumns] = useState<GridColumnMode>(
     readSavedGridColumns,
   );
-  const [updatingTitleId, setUpdatingTitleId] = useState<string | null>(null);
   const [activeBookmark, setActiveBookmark] = useState<BookmarkItem | null>(
     null,
   );
@@ -226,10 +220,7 @@ export function BookmarkList({
   const [isPanelAnimating, setIsPanelAnimating] = useState(false);
   const groupRef = useGroupRef();
   const closeTimerRef = useRef<number | null>(null);
-  const sortedBookmarkItems = useMemo(
-    () => [...bookmarkItems].sort(compareForMode(sortBy)),
-    [bookmarkItems, sortBy],
-  );
+  const hasMore = page < totalPages;
 
   useEffect(() => {
     return () => {
@@ -286,46 +277,26 @@ export function BookmarkList({
     }, PANEL_ANIMATION_MS);
   }, [groupRef, isEditPanelOpen]);
 
-  const handleArchive = async (bookmark: BookmarkItem) => {
-    try {
-      const token = await getAuthToken();
-      await archiveBookmark(token, bookmark.id);
-      onMutate();
-    } catch (archiveError) {
-      console.error("[bookmark] archive failed:", archiveError);
-    }
-  };
+  const handleArchive = useCallback(
+    (bookmark: BookmarkItem) => {
+      void archive(bookmark);
+    },
+    [archive],
+  );
 
-  const handleRestore = async (bookmark: BookmarkItem) => {
-    try {
-      const token = await getAuthToken();
-      await restoreBookmark(token, bookmark.id);
-      onMutate();
-    } catch (restoreError) {
-      console.error("[bookmark] restore failed:", restoreError);
-    }
-  };
+  const handleRestore = useCallback(
+    (bookmark: BookmarkItem) => {
+      void restore(bookmark);
+    },
+    [restore],
+  );
 
-  const handleUpdateTitle = async (bookmark: BookmarkItem) => {
-    setUpdatingTitleId(bookmark.id);
-    try {
-      const token = await getAuthToken();
-      const title = await fetchPageTitle(token, bookmark.url);
-      if (!title) {
-        console.error("[bookmark] title not found:", bookmark.url);
-        return;
-      }
-      await updateBookmarkTitle(token, bookmark.id, title);
-      onMutate();
-    } catch (error) {
-      console.error(
-        "[bookmark] update title failed:",
-        error instanceof ApiError ? error.message : error,
-      );
-    } finally {
-      setUpdatingTitleId(null);
-    }
-  };
+  const handleUpdateTitle = useCallback(
+    (bookmark: BookmarkItem) => {
+      void updateTitle(bookmark);
+    },
+    [updateTitle],
+  );
 
   const handleViewChange = useCallback((nextViewMode: ViewMode) => {
     setViewMode(nextViewMode);
@@ -345,7 +316,13 @@ export function BookmarkList({
       onUpdateTitle: handleUpdateTitle,
       updatingTitleId,
     }),
-    [handleOpenEdit, updatingTitleId],
+    [
+      handleOpenEdit,
+      handleArchive,
+      handleRestore,
+      handleUpdateTitle,
+      updatingTitleId,
+    ],
   );
 
   const isEditPanelVisible = isEditPanelOpen || isPanelAnimating;
@@ -382,18 +359,21 @@ export function BookmarkList({
             sortBy={sortBy}
             viewMode={viewMode}
             gridColumns={gridColumns}
-            onSortChange={setSortBy}
+            onSortChange={(value) => void setSort(value)}
             onViewChange={handleViewChange}
             onGridColumnsChange={handleGridColumnsChange}
           />
           <div className="relative flex min-h-0 flex-1 flex-col">
             <BookmarkListItems
-              items={sortedBookmarkItems}
+              items={items}
               viewMode={viewMode}
               gridColumns={gridColumns}
               isLoading={isLoading}
+              isLoadingMore={isLoadingMore}
+              hasMore={hasMore}
               error={error}
               actions={bookmarkActions}
+              onLoadMore={() => void loadMore()}
             />
             <FeedbackRotateButton />
           </div>
@@ -416,7 +396,6 @@ export function BookmarkList({
               <BookmarkEditDrawer
                 bookmarkItem={activeBookmark}
                 onClose={handleCloseEdit}
-                onSaved={onMutate}
               />
             ) : null}
           </Panel>

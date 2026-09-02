@@ -262,6 +262,15 @@ components:
         default: 20
       description: Items per page
 
+    SortParam:
+      name: sort
+      in: query
+      schema:
+        type: string
+        enum: [newest, oldest, az, za]
+        default: newest
+      description: Sort order for the bookmark list
+
     BookmarkIdParam:
       name: id
       in: path
@@ -497,6 +506,7 @@ paths:
       parameters:
         - $ref: "#/components/parameters/PageParam"
         - $ref: "#/components/parameters/LimitParam"
+        - $ref: "#/components/parameters/SortParam"
       responses:
         "200":
           description: Bookmark list
@@ -547,6 +557,7 @@ paths:
       parameters:
         - $ref: "#/components/parameters/PageParam"
         - $ref: "#/components/parameters/LimitParam"
+        - $ref: "#/components/parameters/SortParam"
       responses:
         "200":
           description: Archived bookmark list
@@ -570,6 +581,7 @@ paths:
       parameters:
         - $ref: "#/components/parameters/PageParam"
         - $ref: "#/components/parameters/LimitParam"
+        - $ref: "#/components/parameters/SortParam"
       responses:
         "200":
           description: Uncategorized bookmark list
@@ -660,6 +672,7 @@ paths:
         - $ref: "#/components/parameters/TagParam"
         - $ref: "#/components/parameters/PageParam"
         - $ref: "#/components/parameters/LimitParam"
+        - $ref: "#/components/parameters/SortParam"
       responses:
         "200":
           description: Bookmark list filtered by tag

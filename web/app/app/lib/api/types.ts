@@ -42,3 +42,5 @@ export type BookmarkListScope =
   | "archived"
   | "uncategorized"
   | { tag: string };
+
+export type BookmarkListSort = "newest" | "oldest" | "az" | "za";

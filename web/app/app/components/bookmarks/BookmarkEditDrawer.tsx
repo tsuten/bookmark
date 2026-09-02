@@ -6,20 +6,17 @@ import {
   validateHttpUrlString,
 } from "~/lib/bookmarks/validateUrl";
 import type { BookmarkItem } from "~/lib/api/types";
-import { updateBookmark } from "~/lib/api/bookmarks";
-import { getAuthToken } from "~/lib/api/loaders";
 import { ApiError } from "~/lib/api/client";
+import { useBookmarkItemsStore } from "~/stores/bookmarkItemsStore";
 
 type BookmarkEditDrawerProps = {
   bookmarkItem: BookmarkItem;
   onClose: () => void;
-  onSaved: () => void;
 };
 
 export function BookmarkEditDrawer({
   bookmarkItem,
   onClose,
-  onSaved,
 }: BookmarkEditDrawerProps) {
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
@@ -59,14 +56,12 @@ export function BookmarkEditDrawer({
     setSubmitError("");
 
     try {
-      const token = await getAuthToken();
-      await updateBookmark(token, bookmarkItem.id, {
+      await useBookmarkItemsStore.getState().update(bookmarkItem.id, {
         title,
         url: url.trim(),
         tags,
         note: note.trim(),
       });
-      onSaved();
       onClose();
     } catch (error) {
       setSubmitError(

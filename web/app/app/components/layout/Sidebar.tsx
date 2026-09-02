@@ -1,5 +1,5 @@
 import { memo, useCallback, useMemo, useState } from "react";
-import { Link, useLocation, useNavigate, useParams, useRevalidator } from "react-router";
+import { Link, useLocation, useNavigate, useParams } from "react-router";
 import { DragDropProvider } from "@dnd-kit/react";
 import { isSortable, useSortable } from "@dnd-kit/react/sortable";
 import {
@@ -21,6 +21,7 @@ import { InputWithIcon } from "~/components/molecules/InputWithIcon";
 import { SettingsDialog } from "~/components/layout/SettingsDialog";
 import { useSidebarLabels } from "~/lib/hooks/useSidebarLabels";
 import { useAuth } from "~/lib/auth/auth-context";
+import { useBookmarkItemsStore } from "~/stores/bookmarkItemsStore";
 import logo from "~/assets/logo.svg";
 
 function arrayMove<T>(items: T[], from: number, to: number): T[] {
@@ -313,12 +314,12 @@ export function Sidebar() {
   const { tag: routeTag } = useParams();
   const { pathname } = useLocation();
   const { getIdToken, user } = useAuth();
-  const revalidator = useRevalidator();
+  const listVersion = useBookmarkItemsStore((state) => state.version);
   const [labelFilterQuery, setLabelFilterQuery] = useState("");
   const { labels, pinned, updatePinned } = useSidebarLabels(
     user?.uid,
     getIdToken,
-    revalidator.state,
+    listVersion,
   );
 
   const labelNames = useMemo(() => labels.map((label) => label.name), [labels]);

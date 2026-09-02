@@ -2,6 +2,7 @@ import { apiFetch } from "./client";
 import type {
   BookmarkListResponse,
   BookmarkListScope,
+  BookmarkListSort,
   BookmarkTagsResponse,
   PinnedTagsResponse,
 } from "./types";
@@ -24,12 +25,14 @@ export async function fetchBookmarkPage(
   token: string,
   scope: BookmarkListScope,
   page: number,
-  limit = 100,
+  limit = 20,
+  sort: BookmarkListSort = "newest",
 ): Promise<BookmarkListResponse> {
   const base = scopePath(scope);
   const params = new URLSearchParams({
     page: String(page),
     limit: String(limit),
+    sort,
   });
   return apiFetch<BookmarkListResponse>(`${base}?${params}`, { token });
 }

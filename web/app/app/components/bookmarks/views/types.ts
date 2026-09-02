@@ -1,5 +1,6 @@
-import type { BookmarkItem } from "~/lib/api/types";
+import type { ReactNode } from "react";
 import type { GridColumnMode } from "~/components/bookmarks/bookmarkListConstants";
+import type { BookmarkItem } from "~/lib/api/types";
 
 export type BookmarkItemActions = {
   onEdit: (bookmark: BookmarkItem) => void;
@@ -13,6 +14,7 @@ export type BookmarkListViewProps = {
   items: BookmarkItem[];
   isLoading?: boolean;
   actions: BookmarkItemActions;
+  footer?: ReactNode;
 };
 
 export type BookmarkGridViewProps = BookmarkListViewProps & {

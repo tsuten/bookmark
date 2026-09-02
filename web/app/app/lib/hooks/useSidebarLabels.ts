@@ -122,10 +122,6 @@ export function useSidebarLabels(
 
     prevRefetchKeyRef.current = refetchKey;
 
-    if (refetchKey !== "idle") {
-      return;
-    }
-
     let cancelled = false;
 
     async function refreshLabels() {
