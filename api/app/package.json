@@ -2,29 +2,34 @@
   "name": "basic",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "wrangler dev --remote",
-    "deploy": "npm run build && wrangler deploy",
-    "db:generate": "drizzle-kit generate",
+    "dev": "npm run dev:d1",
+    "dev:d1": "wrangler dev",
+    "dev:pg": "tsx watch --env-file=.env app/entries/node.ts",
+    "typecheck": "tsc --noEmit",
+    "deploy": "wrangler deploy",
+    "db:generate": "drizzle-kit generate --config drizzle.d1.config.ts",
+    "db:d1:generate": "drizzle-kit generate --config drizzle.d1.config.ts",
     "db:migrate:local": "wrangler d1 migrations apply bookmark --local",
-    "db:migrate:remote": "wrangler d1 migrations apply bookmark --remote"
+    "db:migrate:remote": "wrangler d1 migrations apply bookmark --remote",
+    "db:pg:generate": "drizzle-kit generate --config drizzle.pg.config.ts"
   },
   "private": true,
   "dependencies": {
+    "@hono/node-server": "^1.19.6",
+    "@hono/swagger-ui": "^0.5.1",
+    "@scalar/hono-api-reference": "^0.11.13",
     "drizzle-orm": "^0.44.2",
     "hono": "^4.12.30",
-    "honox": "0.1.59",
-    "jose": "^6.2.3"
+    "jose": "^6.2.3",
+    "pg": "^8.16.3"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260712.1",
-    "@hono/swagger-ui": "^0.5.1",
-    "@hono/vite-build": "^1.11.1",
-    "@hono/vite-dev-server": "^0.26.1",
-    "@scalar/hono-api-reference": "^0.11.13",
+    "@types/node": "^24.6.0",
+    "@types/pg": "^8.15.5",
     "drizzle-kit": "^0.31.1",
-    "vite": "^8.1.4",
+    "tsx": "^4.20.6",
+    "typescript": "^7.0.2",
     "wrangler": "^4.110.0"
   }
 }

@@ -1,10 +1,10 @@
-import { createRoute } from 'honox/factory'
-import { archiveBookmark, deleteBookmark, updateBookmark } from '../../lib/bookmarks'
+import type { Context } from 'hono'
+import { getRepos } from '../../lib/deps'
 import { cleanBookmarkItemUpdate, parseUuid } from '../../lib/bookmarkItems'
 import { ApiError } from '../../lib/errors'
 import { handleBookmarkRoute } from '../../lib/routeHelpers'
 
-export const PATCH = createRoute(async (c) => {
+export const PATCH = async (c: Context) => {
   return handleBookmarkRoute(c, async (userId, body) => {
     const { title, url, tags, note } = body as {
       title?: unknown
@@ -14,16 +14,16 @@ export const PATCH = createRoute(async (c) => {
     }
     const id = parseUuid(c.req.param('id'))
     const cleaned = cleanBookmarkItemUpdate({ title, url, tags, note })
-    const updated = await updateBookmark(c.env.DB, userId, id, cleaned)
+    const updated = await getRepos(c).bookmarks.update(userId, id, cleaned)
     if (!updated) {
       throw new ApiError('not-found', 'Bookmark not found.', 404)
     }
   })
-})
+}
 
-export const DELETE = createRoute(async (c) => {
+export const DELETE = async (c: Context) => {
   return handleBookmarkRoute(c, async (userId) => {
     const id = parseUuid(c.req.param('id'))
-    await deleteBookmark(c.env.DB, userId, id)
+    await getRepos(c).bookmarks.delete(userId, id)
   })
-})
+}

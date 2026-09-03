@@ -1,7 +1,7 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "bookmark-api",
-	"main": "./dist/index.js",
+	"main": "./app/entries/d1.ts",
 	"compatibility_date": "2026-07-16",
 	"compatibility_flags": [
 		"nodejs_compat"
@@ -28,6 +28,13 @@
 		{
 			"binding": "LEAFEE_PINNED_TAGS",
 			"id": "8e729335d20c4977a950a35a7ccae7f3"
+		}
+	],
+	"rules": [
+		{
+			"type": "Text",
+			"globs": ["**/*.yaml"],
+			"fallthrough": true
 		}
 	]
 }

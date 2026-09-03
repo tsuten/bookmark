@@ -1,10 +1,10 @@
-import { createRoute } from 'honox/factory'
+import type { Context } from 'hono'
 import { bookmarkUrlErrorMessage, validateHttpUrlString } from '../lib/bookmarkItems'
 import { ApiError } from '../lib/errors'
 import { fetchPageTitle } from '../lib/getTitle'
 import { handleBookmarkJsonRoute } from '../lib/routeHelpers'
 
-export const GET = createRoute(async (c) => {
+export const GET = async (c: Context) => {
   return handleBookmarkJsonRoute(c, async () => {
     const url = c.req.query('url')
     if (!url) {
@@ -19,4 +19,4 @@ export const GET = createRoute(async (c) => {
     const title = await fetchPageTitle(url.trim(), c.env.BROWSER)
     return { title }
   })
-})
+}

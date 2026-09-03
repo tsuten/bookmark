@@ -1,12 +1,12 @@
-import { createRoute } from 'honox/factory'
-import { listBookmarks } from '../../../lib/bookmarks'
+import type { Context } from 'hono'
+import { getRepos } from '../../../lib/deps'
 import { parseBookmarkListPagination } from '../../../lib/bookmarkItems'
 import { handleBookmarkJsonRoute } from '../../../lib/routeHelpers'
 
-export const GET = createRoute(async (c) => {
+export const GET = async (c: Context) => {
   return handleBookmarkJsonRoute(c, async (userId) => {
-    const tag = decodeURIComponent(c.req.param('tag'))
+    const tag = decodeURIComponent(c.req.param('tag') ?? '')
     const pagination = parseBookmarkListPagination(c.req.query())
-    return listBookmarks(c.env.DB, userId, { tag }, pagination)
+    return getRepos(c).bookmarks.list(userId, { tag }, pagination)
   })
-})
+}

@@ -1,13 +1,14 @@
-import { createRoute } from 'honox/factory'
+import type { Context } from 'hono'
+import { requireFaviconsBucket } from '../../lib/bindings'
 import { ensureDomainFavicon, isValidDomainParam } from '../../lib/favicons'
 
-export const GET = createRoute(async (c) => {
+export const GET = async (c: Context) => {
   const domain = c.req.param('domain')
   if (!domain || !isValidDomainParam(domain)) {
     return c.notFound()
   }
 
-  const favicon = await ensureDomainFavicon(c.env.FAVICONS, domain)
+  const favicon = await ensureDomainFavicon(requireFaviconsBucket(c), domain)
   if (!favicon) {
     return c.notFound()
   }
@@ -18,4 +19,4 @@ export const GET = createRoute(async (c) => {
       'cache-control': 'public, max-age=86400',
     },
   })
-})
+}

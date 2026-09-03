@@ -1,5 +1,5 @@
 import { ApiError } from './errors'
-import type { BookmarkRow } from './db/schema'
+import type { BookmarkRecord } from './ports/types'
 
 export function validateHttpUrlString(value: unknown) {
   if (typeof value !== 'string' || !value.trim()) {
@@ -119,7 +119,7 @@ export type BookmarkListResponse = {
   totalPages: number
 }
 
-export function serializeBookmarkItem(doc: BookmarkRow) {
+export function serializeBookmarkItem(doc: BookmarkRecord) {
   return {
     id: doc.id,
     title: doc.title,

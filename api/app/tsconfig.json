@@ -9,11 +9,12 @@
       "ESNext"
     ],
     "types": [
-      "vite/client",
-      "@cloudflare/workers-types"
+      "@cloudflare/workers-types",
+      "node"
     ]
   },
   "include": [
-    "**/*.ts"
+    "**/*.ts",
+    "yaml.d.ts"
   ]
 }

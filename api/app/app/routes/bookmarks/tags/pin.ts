@@ -1,17 +1,18 @@
-import { createRoute } from 'honox/factory'
+import type { Context } from 'hono'
+import { requirePinnedTagsKv } from '../../../lib/bindings'
 import { getPinnedTags, parsePinnedTagsBody, putPinnedTags } from '../../../lib/pinnedTags'
 import { handleBookmarkJsonRoute, handleProfileJsonRoute } from '../../../lib/routeHelpers'
 
-export const GET = createRoute(async (c) => {
+export const GET = async (c: Context) => {
   return handleBookmarkJsonRoute(c, async (userId) => {
-    const pinned_tags = await getPinnedTags(c.env.LEAFEE_PINNED_TAGS, userId)
+    const pinned_tags = await getPinnedTags(requirePinnedTagsKv(c), userId)
     return { pinned_tags }
   })
-})
+}
 
-export const PATCH = createRoute(async (c) => {
+export const PATCH = async (c: Context) => {
   return handleProfileJsonRoute(c, async (userId, body) => {
     const pinned_tags = parsePinnedTagsBody(body)
-    return putPinnedTags(c.env.LEAFEE_PINNED_TAGS, userId, pinned_tags)
+    return putPinnedTags(requirePinnedTagsKv(c), userId, pinned_tags)
   })
-})
+}

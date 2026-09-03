@@ -1,4 +1,5 @@
 import { index, integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import type { BookmarkMeta } from '../../ports/types'
 
 export const profiles = sqliteTable('profiles', {
   userId: text('user_id').primaryKey(),
@@ -6,8 +7,6 @@ export const profiles = sqliteTable('profiles', {
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
 })
-
-export type BookmarkMeta = Record<string, unknown>
 
 export const bookmarks = sqliteTable(
   'bookmarks',
@@ -27,6 +26,3 @@ export const bookmarks = sqliteTable(
     index('idx_bookmarks_user_list').on(table.userId, table.isArchived, table.createdAt),
   ],
 )
-
-export type ProfileRow = typeof profiles.$inferSelect
-export type BookmarkRow = typeof bookmarks.$inferSelect

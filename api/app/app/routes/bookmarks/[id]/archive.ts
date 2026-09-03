@@ -1,15 +1,15 @@
-import { createRoute } from 'honox/factory'
-import { archiveBookmark } from '../../../lib/bookmarks'
+import type { Context } from 'hono'
+import { getRepos } from '../../../lib/deps'
 import { parseUuid } from '../../../lib/bookmarkItems'
 import { ApiError } from '../../../lib/errors'
 import { handleBookmarkRoute } from '../../../lib/routeHelpers'
 
-export const PATCH = createRoute(async (c) => {
+export const PATCH = async (c: Context) => {
   return handleBookmarkRoute(c, async (userId) => {
     const id = parseUuid(c.req.param('id'))
-    const updated = await archiveBookmark(c.env.DB, userId, id)
+    const updated = await getRepos(c).bookmarks.archive(userId, id)
     if (!updated) {
       throw new ApiError('not-found', 'Bookmark not found.', 404)
     }
   })
-})
+}
