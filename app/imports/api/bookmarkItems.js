@@ -48,7 +48,7 @@ export const BookmarkItemSchema = new SimpleSchema({
   },
   tags: { type: Array, optional: true },
   'tags.$': String,
-  note: { type: String, optional: true, trim: true },
+  note: { type: String, optional: true, trim: true, max: 500 },
   is_archived: { type: Boolean, optional: true, defaultValue: false },
   userId: { type: String },
 });
@@ -62,6 +62,7 @@ export const BookmarkItemUpdateSchema = new SimpleSchema({
   },
   tags: { type: Array, optional: true },
   'tags.$': String,
+  note: { type: String, optional: true, trim: true, max: 500 },
 });
 
 export async function insertBookmarkItem(doc = {}, userId) {
@@ -117,10 +118,10 @@ Meteor.methods({
     }
   },
 
-  async updateBookmarkItem({ _id, title, url, tags } = {}) {
+  async updateBookmarkItem({ _id, title, url, tags, note } = {}) {
     if (!this.userId) {
       throw new Meteor.Error('not-authorized');
     }
-    return updateBookmarkItem({ _id, title, url, tags }, this.userId);
+    return updateBookmarkItem({ _id, title, url, tags, note }, this.userId);
   },
 });

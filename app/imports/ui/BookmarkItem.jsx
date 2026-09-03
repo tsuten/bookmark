@@ -20,13 +20,15 @@ const archiveBookmarkItem = (bookmarkItem) => {
 };
 
 export const BookmarkItem = ({ bookmarkItem, onEdit }) => {
+  const note = bookmarkItem.note?.trim();
+
   return (
     <li>
         <div className="group flex flex-row gap-2 hover:bg-gray-100 justify-between">
-          <a href={bookmarkItem.url} target="_blank">
+          <a href={bookmarkItem.url} target="_blank" rel="noreferrer">
             <div className="flex flex-col p-3">
                 {bookmarkItem.title}
-                <div className="flex flex-row gap-4">
+                <div className="flex flex-row gap-4 items-center">
                     <span className="text-sm text-gray-500">
                     {(bookmarkItem.tags || []).join(', ') || 'No tags'}
                     </span>
@@ -37,6 +39,11 @@ export const BookmarkItem = ({ bookmarkItem, onEdit }) => {
                     {formatCreatedAtLabel(bookmarkItem.createdAt)}
                     </span>
                 </div>
+                {note ? (
+                  <p className="mt-1 text-sm text-gray-600 truncate" title={note}>
+                    {note}
+                  </p>
+                ) : null}
             </div>
           </a>
           <div className="hidden shrink-0 items-center gap-2 group-hover:flex">

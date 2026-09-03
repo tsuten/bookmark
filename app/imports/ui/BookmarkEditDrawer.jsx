@@ -11,6 +11,7 @@ export const BookmarkEditDrawer = ({ bookmarkItem, onClose }) => {
   const [title, setTitle] = useState('');
   const [url, setUrl] = useState('');
   const [tags, setTags] = useState([]);
+  const [note, setNote] = useState('');
   const [urlError, setUrlError] = useState('');
   const [submitError, setSubmitError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -20,6 +21,7 @@ export const BookmarkEditDrawer = ({ bookmarkItem, onClose }) => {
     setTitle(bookmarkItem.title || '');
     setUrl(bookmarkItem.url || '');
     setTags(bookmarkItem.tags || []);
+    setNote(bookmarkItem.note || '');
     setUrlError('');
     setSubmitError('');
     setSubmitting(false);
@@ -49,6 +51,7 @@ export const BookmarkEditDrawer = ({ bookmarkItem, onClose }) => {
         title,
         url: url.trim(),
         tags,
+        note: note.trim(),
       },
       (error) => {
         setSubmitting(false);
@@ -110,6 +113,17 @@ export const BookmarkEditDrawer = ({ bookmarkItem, onClose }) => {
         <label className="flex flex-col gap-1 text-sm text-gray-700">
           Tags
           <TagsInput value={tags} onChange={setTags} />
+        </label>
+
+        <label className="flex flex-col gap-1 text-sm text-gray-700">
+          Note
+          <textarea
+            value={note}
+            onChange={(event) => setNote(event.target.value)}
+            placeholder="Short description"
+            rows={2}
+            maxLength={500}
+          />
         </label>
 
         {submitError ? (
