@@ -5,6 +5,7 @@ import { cors } from 'hono/cors'
 import { inspectRoutes } from 'hono/dev'
 import type { MiddlewareHandler } from 'hono'
 import type { AppRepos } from './lib/deps'
+import type { ObjectStore } from './lib/ports/objects'
 import * as archived from './routes/bookmarks/archived'
 import * as bookmarkId from './routes/bookmarks/[id]'
 import * as archiveBookmark from './routes/bookmarks/[id]/archive'
@@ -23,6 +24,7 @@ import notFoundHandler from './routes/_404'
 export type AppEnv = {
   Variables: {
     repos: AppRepos
+    objects?: ObjectStore
   }
   Bindings: {
     DB?: D1Database

@@ -4,6 +4,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createApp } from '../createApp'
 import { createPostgresPool, createPostgresRepositories } from '../lib/deps/postgres'
+import { createS3ObjectStoreFromEnv } from '../lib/deps/s3'
 
 const databaseUrl = process.env.DATABASE_URL
 if (!databaseUrl) {
@@ -16,10 +17,14 @@ const openApiSpec = readFileSync(
 )
 const pool = createPostgresPool(databaseUrl)
 const repos = createPostgresRepositories(pool)
+const objects = createS3ObjectStoreFromEnv()
 
 const app = createApp({
   injectRepos: async (c, next) => {
     c.set('repos', repos)
+    if (objects) {
+      c.set('objects', objects)
+    }
     await next()
   },
   openApiSpec,

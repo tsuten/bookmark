@@ -1,3 +1,5 @@
+import type { ObjectStore } from './ports/objects'
+
 export const GOOGLE_FAVICON_ENDPOINT = 'https://www.google.com/s2/favicons'
 export const DUCKDUCKGO_FAVICON_ENDPOINT = 'https://icons.duckduckgo.com/ip3'
 
@@ -111,16 +113,13 @@ export async function fetchFaviconWithFallback(
 }
 
 export async function ensureDomainFavicon(
-  bucket: R2Bucket,
+  store: ObjectStore,
   domain: string,
 ): Promise<{ bytes: ArrayBuffer; contentType: string } | null> {
   const objectKey = buildFaviconObjectKey(domain)
-  const existing = await bucket.get(objectKey)
+  const existing = await store.get(objectKey)
   if (existing) {
-    return {
-      bytes: await existing.arrayBuffer(),
-      contentType: existing.httpMetadata?.contentType ?? 'image/png',
-    }
+    return existing
   }
 
   let favicon: { bytes: ArrayBuffer; contentType: string }
@@ -130,12 +129,6 @@ export async function ensureDomainFavicon(
     return null
   }
 
-  await bucket.put(objectKey, favicon.bytes, {
-    httpMetadata: {
-      contentType: favicon.contentType,
-      cacheControl: 'public, max-age=86400',
-    },
-  })
-
+  await store.put(objectKey, favicon.bytes, favicon.contentType)
   return favicon
 }

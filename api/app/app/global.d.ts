@@ -1,9 +1,11 @@
 import type { AppRepos } from './lib/deps'
+import type { ObjectStore } from './lib/ports/objects'
 
 declare module 'hono' {
   interface Env {
     Variables: {
       repos: AppRepos
+      objects?: ObjectStore
     }
     Bindings: {
       DB?: D1Database

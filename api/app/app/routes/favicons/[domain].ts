@@ -1,5 +1,5 @@
 import type { Context } from 'hono'
-import { requireFaviconsBucket } from '../../lib/bindings'
+import { getObjectStore } from '../../lib/deps'
 import { ensureDomainFavicon, isValidDomainParam } from '../../lib/favicons'
 
 export const GET = async (c: Context) => {
@@ -8,7 +8,7 @@ export const GET = async (c: Context) => {
     return c.notFound()
   }
 
-  const favicon = await ensureDomainFavicon(requireFaviconsBucket(c), domain)
+  const favicon = await ensureDomainFavicon(getObjectStore(c), domain)
   if (!favicon) {
     return c.notFound()
   }
