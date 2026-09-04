@@ -21,6 +21,7 @@
     "@scalar/hono-api-reference": "^0.11.13",
     "drizzle-orm": "^0.44.2",
     "hono": "^4.12.30",
+    "ioredis": "^5.8.1",
     "jose": "^6.2.3",
     "pg": "^8.16.3"
   },

@@ -5,6 +5,7 @@ import { cors } from 'hono/cors'
 import { inspectRoutes } from 'hono/dev'
 import type { MiddlewareHandler } from 'hono'
 import type { AppRepos } from './lib/deps'
+import type { KvStore } from './lib/ports/kv'
 import type { ObjectStore } from './lib/ports/objects'
 import * as archived from './routes/bookmarks/archived'
 import * as bookmarkId from './routes/bookmarks/[id]'
@@ -25,6 +26,7 @@ export type AppEnv = {
   Variables: {
     repos: AppRepos
     objects?: ObjectStore
+    kv?: KvStore
   }
   Bindings: {
     DB?: D1Database

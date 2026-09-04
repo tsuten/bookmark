@@ -1,6 +1,7 @@
 import type { Context } from 'hono'
 import { ApiError } from './errors'
 import type { BookmarkRepository } from './ports/bookmarks'
+import type { KvStore } from './ports/kv'
 import type { ObjectStore } from './ports/objects'
 import type { ProfileRepository } from './ports/profiles'
 
@@ -21,6 +22,14 @@ export function getObjectStore(c: Context): ObjectStore {
   const store = c.get('objects')
   if (!store) {
     throw new ApiError('not-configured', 'Object store is not configured.', 503)
+  }
+  return store
+}
+
+export function getKvStore(c: Context): KvStore {
+  const store = c.get('kv')
+  if (!store) {
+    throw new ApiError('not-configured', 'Key-value store is not configured.', 503)
   }
   return store
 }

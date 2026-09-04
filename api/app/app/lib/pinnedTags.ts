@@ -1,4 +1,5 @@
 import { ApiError } from './errors'
+import type { KvStore } from './ports/kv'
 
 const MAX_PINNED_TAGS = 50
 
@@ -51,8 +52,8 @@ function isPinnedTagsPayload(value: unknown): value is PinnedTagsPayload {
   )
 }
 
-export async function getPinnedTags(kv: KVNamespace, userId: string): Promise<string[]> {
-  const stored = await kv.get(pinnedTagsKey(userId), 'json')
+export async function getPinnedTags(kv: KvStore, userId: string): Promise<string[]> {
+  const stored = await kv.getJson<unknown>(pinnedTagsKey(userId))
   if (!isPinnedTagsPayload(stored)) {
     return []
   }
@@ -60,11 +61,11 @@ export async function getPinnedTags(kv: KVNamespace, userId: string): Promise<st
 }
 
 export async function putPinnedTags(
-  kv: KVNamespace,
+  kv: KvStore,
   userId: string,
   pinnedTags: string[],
 ): Promise<PinnedTagsPayload> {
   const payload: PinnedTagsPayload = { pinned_tags: pinnedTags }
-  await kv.put(pinnedTagsKey(userId), JSON.stringify(payload))
+  await kv.putJson(pinnedTagsKey(userId), payload)
   return payload
 }

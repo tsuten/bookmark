@@ -1,4 +1,5 @@
 import type { AppRepos } from './lib/deps'
+import type { KvStore } from './lib/ports/kv'
 import type { ObjectStore } from './lib/ports/objects'
 
 declare module 'hono' {
@@ -6,6 +7,7 @@ declare module 'hono' {
     Variables: {
       repos: AppRepos
       objects?: ObjectStore
+      kv?: KvStore
     }
     Bindings: {
       DB?: D1Database
