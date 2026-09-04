@@ -2,6 +2,7 @@ import { createApp } from '../createApp'
 import { createCloudflareKvStore } from '../lib/adapters/kv/store'
 import { createR2ObjectStore } from '../lib/adapters/r2/objects'
 import { createD1Repositories } from '../lib/deps/d1'
+import { createTokenVerifierFromEnv } from '../lib/deps/auth'
 
 import openApiSpec from '../../docs/openapi.yaml'
 
@@ -17,6 +18,10 @@ const app = createApp({
     }
     if (c.env.LEAFEE_PINNED_TAGS) {
       c.set('kv', createCloudflareKvStore(c.env.LEAFEE_PINNED_TAGS))
+    }
+    const auth = createTokenVerifierFromEnv(c.env)
+    if (auth) {
+      c.set('auth', auth)
     }
     await next()
   },
